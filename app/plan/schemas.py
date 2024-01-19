@@ -1,0 +1,5 @@
+# Модельки
+
+
+class Employee():
+    pass
