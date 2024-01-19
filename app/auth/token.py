@@ -1,4 +1,4 @@
-from schemas import Employee
+from plan.schemas import Employee
 
 
 async def check_token(token) -> Employee:
