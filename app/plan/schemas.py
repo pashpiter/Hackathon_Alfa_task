@@ -3,11 +3,11 @@
 from sqlmodel import SQLModel
 
 
-class User():
+class Users():
     pass
 
 
-class Employee():
+class Supervisor_Employees():
     pass
 
 
@@ -23,13 +23,9 @@ class Attachments():
     pass
 
 
-class IPR():
+class Plans():
     pass
 
 
-class Task():
-    pass
-
-
-class Task_In_IPR():
+class Tasks():
     pass

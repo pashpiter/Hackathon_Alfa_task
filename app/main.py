@@ -18,9 +18,6 @@ app.include_router(ipr_router)
 app.include_router(task_router)
 
 
-app = FastAPI()  # lifespan
-
-
 @app.get('/ping')
 async def ping():
     """Проверка работы сервера"""
