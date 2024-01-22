@@ -7,7 +7,7 @@ class User():
     pass
 
 
-class Supervisor_Employee():
+class SupervisorEmployee():
     pass
 
 
