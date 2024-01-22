@@ -23,7 +23,7 @@ target_metadata = SQLModel.metadata
 
 def run_migrations_offline() -> None:
     """
-    Запуск миграций к БД в offline-режиме.
+    Запуск миграций к БД в "offline" режиме.
     Не требует создания Engine, только URL БД.
     """
     url = config.get_main_option("sqlalchemy.url")
@@ -39,6 +39,10 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
+    """
+    Запуск миграций к БД в "online" режиме.
+    Необходимо создание Engine.
+    """
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
