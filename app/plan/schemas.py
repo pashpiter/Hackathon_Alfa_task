@@ -3,29 +3,29 @@
 from sqlmodel import SQLModel
 
 
-class Users():
+class User():
     pass
 
 
-class Supervisor_Employees():
+class Supervisor_Employee():
     pass
 
 
-class Links():
+class Link():
     pass
 
 
-class Comments():
+class Comment():
     pass
 
 
-class Attachments():
+class Attachment():
     pass
 
 
-class Plans():
+class Plan():
     pass
 
 
-class Tasks():
+class Task():
     pass
