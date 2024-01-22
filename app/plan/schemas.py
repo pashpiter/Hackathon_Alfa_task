@@ -7,29 +7,25 @@ class User():
     pass
 
 
-class Employee():
+class SupervisorEmployee():
     pass
 
 
-class Links():
+class Link():
     pass
 
 
-class Comments():
+class Comment():
     pass
 
 
-class Attachments():
+class Attachment():
     pass
 
 
-class IPR():
+class Plan():
     pass
 
 
 class Task():
-    pass
-
-
-class Task_In_IPR():
     pass

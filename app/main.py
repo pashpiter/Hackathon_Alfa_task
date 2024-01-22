@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from plan.routers import ipr_router, task_router
+from plan.routers import plan_router, task_router
 
 
 """
@@ -14,11 +14,8 @@ def create_app():
 
 app = FastAPI()
 
-app.include_router(ipr_router)
+app.include_router(plan_router)
 app.include_router(task_router)
-
-
-app = FastAPI()  # lifespan
 
 
 @app.get('/ping')
