@@ -11,7 +11,7 @@ from app.plan.schemas import *
 
 config = context.config
 
-if config.config_file_name is not None:
+if config.config_file_name:
     fileConfig(config.config_file_name)
 
 # Через config можно переопределять параметры, заданные а alembic.ini.
