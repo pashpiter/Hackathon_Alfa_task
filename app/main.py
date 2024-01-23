@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from app.plan.routers import plan_router, task_router
 
-
 """
 Как сделать версионирование
 def create_app():
@@ -14,8 +13,8 @@ def create_app():
 
 app = FastAPI()
 
+plan_router.include_router(task_router)
 app.include_router(plan_router)
-app.include_router(task_router)
 
 
 @app.get('/ping')
