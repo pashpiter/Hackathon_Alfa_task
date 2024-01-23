@@ -1,3 +1,4 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 """
@@ -7,12 +8,12 @@ DEBUG можно использовать для разнообразной ло
 """
 
 
-class DevelopmentSettings(BaseSettings):
-    database_URL: str = "sqlite:///development.sqlite"
-    DEBUG: bool = True
+# class DevelopmentSettings(BaseSettings):
+#     database_URL: str = "sqlite:///development.sqlite"
+#     DEBUG: bool = True
 
 
-class ProductionSettings(BaseSettings):
+class PostgresSettings(BaseSettings):
     DB_HOST: str
     DB_PORT: int
     DB_USER: str
@@ -27,4 +28,4 @@ class ProductionSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file="../.env")
 
 
-settings = DevelopmentSettings()
+settings = PostgresSettings()
