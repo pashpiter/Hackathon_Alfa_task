@@ -1,5 +1,5 @@
 import os
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 """
 Базовые классы настроек, по необходимости можно расширять.
@@ -8,24 +8,19 @@ DEBUG можно использовать для разнообразной ло
 """
 
 
-# class DevelopmentSettings(BaseSettings):
-#     database_URL: str = "sqlite:///development.sqlite"
-#     DEBUG: bool = True
-
-
 class PostgresSettings(BaseSettings):
-    DB_HOST: str
-    DB_PORT: int
-    DB_USER: str
-    DB_PASS: str
-    DB_NAME: str
-    DEBUG: bool = False
+    DB_HOST: str = os.getenv("DB_HOST", "localhost")
+    DB_PORT: int = os.getenv("DB_PORT", 5432)
+    DB_USER: str = os.getenv("DB_USER", "postgres")
+    DB_PASS: str = os.getenv("DB_PASS", "postgres")
+    DB_NAME: str = os.getenv("DB_NAME", "localhost")
 
     @property
     def database_URL(self) -> str:
-        return f"postgresql://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-
-    model_config = SettingsConfigDict(env_file="../.env")
+        return (
+            f"postgresql://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:"
+            f"{self.DB_PORT}/{self.DB_NAME}"
+        )
 
 
 settings = PostgresSettings()
