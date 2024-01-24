@@ -13,8 +13,8 @@ def create_app():
 
 app = FastAPI()
 
-plan_router.include_router(task_router)
 app.include_router(plan_router)
+app.include_router(task_router)
 
 
 @app.get('/ping')
