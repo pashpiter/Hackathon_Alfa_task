@@ -13,7 +13,7 @@ class PostgresSettings(BaseSettings):
     DB_PORT: int = os.getenv("DB_PORT", 5432)
     DB_USER: str = os.getenv("POSTGRES_USER", "postgres")
     DB_PASS: str = os.getenv("POSTGRES_PASSWORD", "postgres")
-    DB_NAME: str = os.getenv("DB_NAME", "localhost")
+    DB_NAME: str = os.getenv("DB_NAME", "postgres")
 
     @property
     def database_URL(self) -> str:
