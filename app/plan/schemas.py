@@ -21,7 +21,7 @@ class SupervisorEmployee(SQLModel, table=True):
         foreign_key="user.id",
         primary_key=True,
     )
-    emloyee_id: Optional[int] = Field(
+    employee_id: Optional[int] = Field(
         default=None,
         foreign_key="user.id",
         primary_key=True,
@@ -30,26 +30,34 @@ class SupervisorEmployee(SQLModel, table=True):
 
 class UserBase(SQLModel):
     full_name: str
-    subdivision: str
     position: str
+    plan: Optional[int] = Field(default=None, foreign_key="plan.id")
 
 
 class User(UserBase, PrimaryKey, table=True):
-    role: Enum
+    role: Role
     token: str
 
-    supervisor: Optional["User"] = Relationship(
+    supervisor: list["User"] = Relationship(
         back_populates="employees",
         link_model=SupervisorEmployee,
+        sa_relationship_kwargs={
+            "foreign_keys": "SupervisorEmployee.supervisor_id",
+            "lazy": "selectin",
+        },
     )
     employees: list["User"] = Relationship(
         back_populates="supervisor",
         link_model=SupervisorEmployee,
+        sa_relationship_kwargs={
+            "foreign_keys": "SupervisorEmployee.employee_id",
+            "lazy": "selectin",
+        },
     )
 
 
-class UserRead(UserBase):
-    having_plan: bool
+class UserRead(UserBase, PrimaryKey):
+    pass
 
 
 class PlanBase(SQLModel):
