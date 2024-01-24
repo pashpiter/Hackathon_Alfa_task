@@ -6,7 +6,14 @@ from sqlmodel import SQLModel
 
 from app.config import settings
 # Импортируем все модели, для которых необходимо создать миграции.
-from app.plan.schemas import User
+from app.plan.schemas import (
+    User,
+    SupervisorEmployee,
+    Plan,
+    Task,
+    Comment,
+    Attachment,
+)
 
 
 config = context.config

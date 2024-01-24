@@ -15,17 +15,17 @@ class Role(str, Enum):
     supervisor = "supervisor"
 
 
-# class SupervisorEmployee(SQLModel, table=True):
-#     supervisor_id: Optional[int] = Field(
-#         default=None,
-#         foreign_key="user.id",
-#         primary_key=True,
-#     )
-#     emloyee_id: Optional[int] = Field(
-#         default=None,
-#         foreign_key="user.id",
-#         primary_key=True,
-#     )
+class SupervisorEmployee(SQLModel, table=True):
+    supervisor_id: Optional[int] = Field(
+        default=None,
+        foreign_key="user.id",
+        primary_key=True,
+    )
+    emloyee_id: Optional[int] = Field(
+        default=None,
+        foreign_key="user.id",
+        primary_key=True,
+    )
 
 
 class UserBase(SQLModel):
@@ -35,16 +35,17 @@ class UserBase(SQLModel):
 
 
 class User(UserBase, PrimaryKey, table=True):
+    role: Enum
     token: str
 
-    # supervisor: Optional["User"] = Relationship(
-    #     back_populates="employees",
-    #     link_model=SupervisorEmployee,
-    # )
-    # employees: list["User"] = Relationship(
-    #     back_populates="supervisor",
-    #     link_model=SupervisorEmployee,
-    #     )
+    supervisor: Optional["User"] = Relationship(
+        back_populates="employees",
+        link_model=SupervisorEmployee,
+    )
+    employees: list["User"] = Relationship(
+        back_populates="supervisor",
+        link_model=SupervisorEmployee,
+        )
 
 
 class UserRead(UserBase):
