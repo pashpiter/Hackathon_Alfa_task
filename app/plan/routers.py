@@ -1,89 +1,71 @@
 from fastapi import APIRouter
-from typing import Union
+from typing import List, Optional
 from app.plan.schemas import Plan, Task, User
-from uuid import UUID
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 # Роутер для ИПР
 plan_router = APIRouter(prefix="/plans", tags=["Plans"])
 
 
-@plan_router.get("/")
+@plan_router.get("/", response_model=List[Plan])
 async def get_plans():
     """Получение списка ИПРов"""
-    return {"plans": ['plan1', 'plan2', 'plan3']}
+    pass
 
 
-@plan_router.post("/")
-async def create_plan(employee_id: UUID, aim: str, plan_completion_date: date):
+@plan_router.post("/", response_model=Plan)
+async def create_plan(
+        employee_id: int,
+        aim: str,
+        plan_completion_date: date = datetime.now().date() + timedelta(days=180)
+):
     """Создание ИПР"""
     pass
-    return {
-        "employee": User,
-        "aim": aim,
-        "plan_completion_date": plan_completion_date
-    }
 
 
-@plan_router.get("/{plan_id}")
+@plan_router.get("/{plan_id}", response_model=Plan)
 async def get_plan(plan_id: int):
     """Получение ИПР по id"""
     pass
-    return {
-        "plan_id": plan_id
-    }
 
 
-@plan_router.patch("/{plan_id}")
-async def update_plan(plan_id: int, aim: str | None, plan_completion_date: date | None):
+@plan_router.patch("/{plan_id}", response_model=Plan)
+async def update_plan(plan_id: int, aim: Optional[str]):
     """Обновление ИПР"""
     pass
-    return {"plan_id": plan_id, "aim": aim, "plan_completion_date": plan_completion_date}
 
 
 # Роутер для задач
 task_router = APIRouter(tags=["Tasks"])
 
 
-@task_router.get("/{plan_id}/tasks")
+@task_router.get("/{plan_id}/tasks", response_model=Task)
 async def get_tasks(plan_id: int):
     """Получение списка задач"""
-    return {
-        "plan_id": plan_id,
-        "tasks": ['task1', 'task2', 'task3'],
-    }
+    pass
 
 
-@task_router.post("/{plan_id}/tasks")
+@task_router.post("/{plan_id}/tasks", response_model=List[Task])
 async def create_task(
-        plan_id: UUID,
+        plan_id: int,
         task_name: str,
         task_description: str,
-        task_completion_date: date | None = datetime.now().date(),
+        task_completion_date: Optional[date] = datetime.now().date(),
 ):
     """Создание задачи"""
-    return {
-        "plan_id": plan_id,
-        "task_name": task_name
-    }
+    pass
 
 
-@task_router.get("/{plan_id}/tasks/{task_id}")
+@task_router.get("/{plan_id}/tasks/{task_id}", response_model=Task)
 async def get_task(plan_id: int, task_id: int):
     """Получение задачи по id"""
-    return {
-        "plan_id": plan_id,
-        "task_id": task_id
-    }
+    pass
 
 
-@task_router.patch("/{plan_id}/tasks/{task_id}")
-async def update_task(plan_id: int, task_id: int, task_name: str | None = None):
+@task_router.patch("/{plan_id}/tasks/{task_id}", response_model=List[Task])
+async def update_task(plan_id: int, task_id: int, task_name: Optional[str] = None):
     """Обновление задачи"""
     pass
-    return {
-        "task_name": task_name,
-    }
 
 
 @task_router.delete("/{plan_id}/tasks/{task_id}")
