@@ -1,13 +1,15 @@
-from fastapi import APIRouter
 from typing import List
-from app.plan.schemas import Plan, PlanBase, PlanCreate, PlanRead, PlanUpdate
-from app.plan.schemas import Task, TaskBase, TaskCreate, TaskRead, TaskUpdate
+
+from fastapi import APIRouter
+
+from app.plan.schemas import (Plan, PlanBase, PlanCreate, PlanRead, PlanUpdate,
+                              Task, TaskBase, TaskCreate, TaskRead, TaskUpdate)
+
 
 # Роутер для ИПР
 plan_router = APIRouter(prefix="/plans", tags=["Plans"])
 # Роутер для задач
 task_router = APIRouter(prefix="/{plan_id}/tasks", tags=["Tasks"])
-plan_router.include_router(task_router)
 
 
 @plan_router.get("/", response_model=List[PlanRead])
@@ -62,3 +64,5 @@ async def update_task(plan_id: int, task_id: int, task_patch: TaskUpdate):
 async def delete_task(plan_id: int, task_id: int):
     """Удаление задачи"""
     pass
+
+plan_router.include_router(task_router)
