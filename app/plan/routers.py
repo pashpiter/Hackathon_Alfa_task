@@ -2,12 +2,12 @@ from fastapi import APIRouter
 from typing import List
 from app.plan.schemas import Plan, PlanBase, PlanCreate, PlanRead, PlanUpdate
 from app.plan.schemas import Task, TaskBase, TaskCreate, TaskRead, TaskUpdate
-from datetime import date, datetime, timedelta
 
 # Роутер для ИПР
 plan_router = APIRouter(prefix="/plans", tags=["Plans"])
 # Роутер для задач
-task_router = APIRouter(prefix="/plans/{plan_id}/tasks", tags=["Tasks"])
+task_router = APIRouter(prefix="/{plan_id}/tasks", tags=["Tasks"])
+plan_router.include_router(task_router)
 
 
 @plan_router.get("/", response_model=List[PlanRead])
@@ -58,11 +58,7 @@ async def update_task(plan_id: int, task_id: int, task_patch: TaskUpdate):
     pass
 
 
-@task_router.delete("/{task_id}")
+@task_router.delete("/{task_id}", status_code=204)
 async def delete_task(plan_id: int, task_id: int):
     """Удаление задачи"""
     pass
-    return {
-        "message": "Task deleted",
-        "response_code": 200
-    }
