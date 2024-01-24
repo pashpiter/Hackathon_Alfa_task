@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlmodel import SQLModel
 
-from app.config import settings
+from app.app_config import settings
 # Импортируем все модели, для которых необходимо создать миграции.
 from app.plan.schemas import (
     User,

@@ -45,7 +45,7 @@ class User(UserBase, PrimaryKey, table=True):
     employees: list["User"] = Relationship(
         back_populates="supervisor",
         link_model=SupervisorEmployee,
-        )
+    )
 
 
 class UserRead(UserBase):
