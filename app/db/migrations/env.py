@@ -7,12 +7,7 @@ from sqlmodel import SQLModel
 from app.app_config import settings
 # Импортируем все модели, для которых необходимо создать миграции.
 from app.plan.schemas import (
-    User,
-    SupervisorEmployee,
-    Plan,
-    Task,
-    Comment,
-    Attachment,
+    User, Plan, Task, Comment, Attachment
 )
 
 
