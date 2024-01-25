@@ -19,8 +19,8 @@ class User(UserBase, PrimaryKey, table=True):
     supervisor_id: Optional[int]
 
 
-class UserRead(UserBase, PrimaryKey):
-    pass
+class UserRead(UserBase):
+    id: int
 
 
 class PlanBase(SQLModel):
