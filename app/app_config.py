@@ -1,4 +1,4 @@
-import os
+from pydantic import Field
 from pydantic_settings import BaseSettings
 
 """
@@ -8,19 +8,32 @@ DEBUG можно использовать для разнообразной ло
 """
 
 
+class AppSettings(BaseSettings):
+    debug: bool = Field(False, alias='DEBUG')
+
+
 class PostgresSettings(BaseSettings):
-    DB_HOST: str = os.getenv("DB_HOST", "localhost")
-    DB_PORT: int = os.getenv("DB_PORT", 5432)
-    DB_USER: str = os.getenv("POSTGRES_USER", "postgres")
-    DB_PASS: str = os.getenv("POSTGRES_PASSWORD", "postgres")
-    DB_NAME: str = os.getenv("DB_NAME", "localhost")
+    host: str = Field('localhost', alias='POSTGRES_HOST')
+    port: int = Field(5432, alias='POSTGRES_PORT')
+    user: str = Field('user', alias='POSTGRES_USER')
+    password: str = Field('password', alias='POSTGRES_PASSWORD')
+    db_name: str = Field('database', alias='POSTGRES_DB')
+    search_path: str = 'plans'
 
     @property
-    def database_URL(self) -> str:
-        return (
-            f"postgresql://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:"
-            f"{self.DB_PORT}/{self.DB_NAME}"
+    def database_url(self) -> str:
+        return 'postgresql+asyncpg://{}:{}@{}:{}/{}'.format(
+            self.user,
+            self.password,
+            self.host,
+            self.port,
+            self.db_name
         )
 
 
-settings = PostgresSettings()
+class Settings:
+    app: AppSettings = AppSettings()
+    postgres: PostgresSettings = PostgresSettings()
+
+
+settings = Settings()

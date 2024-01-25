@@ -1,12 +1,17 @@
 # Используйте SQLModel!!!!!  https://sqlmodel.tiangolo.com/tutorial/fastapi/
 # ПРИМЕР https://sqlmodel.tiangolo.com/tutorial/fastapi/session-with-dependency/
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, text, DateTime, Column
 from typing import Optional
+from datetime import datetime
 
 
-class PrimaryKey():
+PK_TYPE = int
+USER_PK_TYPE = int
+
+
+class PrimaryKey:
     """Класс для добавления id(pk) к схемам"""
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
 
 
 class UserBase(SQLModel):
@@ -25,12 +30,30 @@ class SupervisorEmployee(SQLModel, PrimaryKey, table=True):
     pass
 
 
+# *****************************************************************************
+
+
 class PlanBase(SQLModel):
     pass
 
 
 class Plan(PlanBase, PrimaryKey, table=True):
-    pass
+    name: str
+    status: str  # TODO: добавить Enum
+    employee_id: USER_PK_TYPE
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=False,
+            server_default=text("TIMEZONE('utc', now())")
+        )
+    )
+    expired_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=True
+        )
+    )
 
 
 class PlanCreate(PlanBase):
@@ -41,17 +64,34 @@ class PlanRead(PlanBase):
     pass
 
 
-class PlanUpdate(SQLModel):
-    # Взять поля из плана, которые можно менять
+class PlanUpdate(PlanBase):
     pass
+
+
+# *****************************************************************************
 
 
 class TaskBase(SQLModel):
     pass
 
 
-class Task(TaskBase, PrimaryKey):
-    pass
+class Task(TaskBase, PrimaryKey, table=True):
+    aim_description: str
+    status: str  # TODO: добавить Enum
+    plan_id: PK_TYPE = Field(default=None, foreign_key='plan.id')
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=False,
+            server_default=text("TIMEZONE('utc', now())")
+        )
+    )
+    expired_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=True
+        )
+    )
 
 
 class TaskCreate(TaskBase):
@@ -62,9 +102,11 @@ class TaskRead(TaskBase):
     pass
 
 
-class TaskUpdate(SQLModel):
-    # Взять поля из задачи, которые можно менять
+class TaskUpdate(TaskBase):
     pass
+
+
+# *****************************************************************************
 
 
 class CommentBase(SQLModel):
@@ -72,7 +114,18 @@ class CommentBase(SQLModel):
 
 
 class Comment(CommentBase, PrimaryKey, table=True):
-    pass
+    task_id: PK_TYPE = Field(default=None, foreign_key='task.id')
+    author_id: USER_PK_TYPE
+    type: str  # TODO: добавить Enum
+    content: str
+    is_read: bool = Field(default=False)
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=False,
+            server_default=text("TIMEZONE('utc', now())")
+        )
+    )
 
 
 class CommentRead(CommentBase):
@@ -83,17 +136,35 @@ class CommentCreate(CommentBase):
     pass
 
 
-class AttachmentBase(SQLModel):
+# *****************************************************************************
+
+
+class NotificationBase(SQLModel):
     pass
 
 
-class Attachment(AttachmentBase, PrimaryKey, table=True):
+class Notification(NotificationBase, PrimaryKey, table=True):
+    recipient_id: USER_PK_TYPE
+    type: str  # TODO: добавить Enum
+    header: str
+    content: str
+    is_read: bool = Field(default=False)
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=False,
+            server_default=text("TIMEZONE('utc', now())")
+        )
+    )
+
+
+class NotificationCreate(NotificationBase):
     pass
 
 
-class AttachmentCreate(AttachmentBase):
+class NotificationRead(NotificationBase):
     pass
 
 
-class AttachmentRead(AttachmentBase):
+class NotificationUpdate(NotificationBase):
     pass
