@@ -1,7 +1,6 @@
 # Используйте SQLModel!!!!!  https://sqlmodel.tiangolo.com/tutorial/fastapi/
 # ПРИМЕР https://sqlmodel.tiangolo.com/tutorial/fastapi/session-with-dependency/
-from enum import Enum
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field
 from typing import Optional
 
 
@@ -10,50 +9,14 @@ class PrimaryKey(SQLModel):
     id: Optional[int] = Field(default=None, primary_key=True)
 
 
-class Role(str, Enum):
-    employee = "employee"
-    supervisor = "supervisor"
-
-
-class SupervisorEmployee(SQLModel, table=True):
-    supervisor_id: Optional[int] = Field(
-        default=None,
-        foreign_key="user.id",
-        primary_key=True,
-    )
-    employee_id: Optional[int] = Field(
-        default=None,
-        foreign_key="user.id",
-        primary_key=True,
-    )
-
-
 class UserBase(SQLModel):
     full_name: str
     position: str
-    plan: Optional[int] = Field(default=None, foreign_key="plan.id")
 
 
 class User(UserBase, PrimaryKey, table=True):
-    role: Role
     token: str
-
-    supervisor: list["User"] = Relationship(
-        back_populates="employees",
-        link_model=SupervisorEmployee,
-        sa_relationship_kwargs={
-            "foreign_keys": "SupervisorEmployee.supervisor_id",
-            "lazy": "selectin",
-        },
-    )
-    employees: list["User"] = Relationship(
-        back_populates="supervisor",
-        link_model=SupervisorEmployee,
-        sa_relationship_kwargs={
-            "foreign_keys": "SupervisorEmployee.employee_id",
-            "lazy": "selectin",
-        },
-    )
+    supervisor_id: Optional[int]
 
 
 class UserRead(UserBase, PrimaryKey):
