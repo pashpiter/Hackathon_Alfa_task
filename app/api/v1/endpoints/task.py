@@ -9,7 +9,7 @@ from schemas.task import TaskRead, TaskCreate, TaskUpdate
 
 logger = logger_factory(__name__)
 
-router = APIRouter(prefix='/{plan_id}/tasks')
+router = APIRouter(prefix="/plans/{plan_id}/tasks")
 
 
 @router.get(

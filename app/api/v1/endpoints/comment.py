@@ -9,7 +9,7 @@ from schemas.comment import CommentRead, CommentCreate
 
 logger = logger_factory(__name__)
 
-router = APIRouter(prefix='/{task_id}/comments')
+router = APIRouter(prefix="/plans/{plan_id}/tasks/{task_id}/comments")
 
 
 @router.get(

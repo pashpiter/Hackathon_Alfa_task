@@ -1,5 +1,7 @@
 from fastapi import APIRouter
-from api.v1.endpoints import comment_router, plan_router, task_router, notification_router
+
+from api.v1.endpoints import (comment_router, notification_router, plan_router,
+                              task_router)
 
 v1_router = APIRouter(prefix='/api/v1')
 
