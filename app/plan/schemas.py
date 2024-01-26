@@ -2,16 +2,10 @@ from sqlmodel import SQLModel, Field, text, DateTime, Column
 from typing import Optional
 from datetime import datetime
 import enum
+from app_config import settings
 
 PK_TYPE = int
 USER_PK_TYPE = int
-
-
-class StatusBase:
-    CREATED = 'created'
-    IN_PROGRESS = 'in_progress'
-    DONE = 'done'
-    FAILED = 'failed'
 
 
 class PrimaryKey:
@@ -28,6 +22,8 @@ class UserBase(SQLModel):
 
 
 class User(UserBase, PrimaryKey, table=True):
+    __table_args__ = {'schema': settings.postgres.schema}
+
     token: str
     supervisor_id: Optional[int]
 
@@ -38,8 +34,11 @@ class UserRead(UserBase):
 
 # *****************************************************************************
 
-class PlanStatus(StatusBase, str, enum.Enum):
-    pass
+class PlanStatus(str, enum.Enum):
+    CREATED = 'created'
+    IN_PROGRESS = 'in_progress'
+    DONE = 'done'
+    FAILED = 'failed'
 
 
 class PlanBase(SQLModel):
@@ -47,8 +46,10 @@ class PlanBase(SQLModel):
 
 
 class Plan(PlanBase, PrimaryKey, table=True):
+    __table_args__ = {'schema': settings.postgres.schema}
+
     aim_description: str
-    status: str = Field(sa_column_kwargs={'info': {'choices': PlanStatus}})
+    status: PlanStatus
     employee_id: USER_PK_TYPE
     created_at: Optional[datetime] = Field(
         sa_column=Column(
@@ -80,7 +81,11 @@ class PlanUpdate(PlanBase):
 # *****************************************************************************
 
 
-class TaskStatus(StatusBase, str, enum.Enum):
+class TaskStatus(str, enum.Enum):
+    CREATED = 'created'
+    IN_PROGRESS = 'in_progress'
+    DONE = 'done'
+    FAILED = 'failed'
     UNDER_REVIEW = 'under_review'
 
 
@@ -89,9 +94,11 @@ class TaskBase(SQLModel):
 
 
 class Task(TaskBase, PrimaryKey, table=True):
+    __table_args__ = {'schema': settings.postgres.schema}
+
     name: str
     description: str
-    status: str = Field(sa_column_kwargs={'info': {'choices': TaskStatus}})
+    status: TaskStatus
     plan_id: PK_TYPE = Field(default=None, foreign_key='plan.id')
     created_at: Optional[datetime] = Field(
         sa_column=Column(
@@ -134,9 +141,11 @@ class CommentBase(SQLModel):
 
 
 class Comment(CommentBase, PrimaryKey, table=True):
+    __table_args__ = {'schema': settings.postgres.schema}
+
     task_id: PK_TYPE = Field(default=None, foreign_key='task.id')
     author_id: USER_PK_TYPE
-    type: str = Field(sa_column_kwargs={'info': {'choices': CommentType}})
+    type: CommentType
     content: str
     is_read: bool = Field(default=False)
     created_at: Optional[datetime] = Field(
@@ -170,8 +179,10 @@ class NotificationBase(SQLModel):
 
 
 class Notification(NotificationBase, PrimaryKey, table=True):
+    __table_args__ = {'schema': settings.postgres.schema}
+
     recipient_id: USER_PK_TYPE
-    type: str  # TODO: добавить Enum
+    type: NotificationType
     header: str
     text: str
     is_read: bool = Field(default=False)

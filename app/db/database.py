@@ -5,7 +5,7 @@ from sqlmodel import SQLModel
 from app_config import settings
 
 
-SQLModel.metadata.schema = settings.postgres.search_path
+SQLModel.metadata.schema = settings.postgres.schema
 DATABASE_URL = settings.postgres.database_url
 
 async_engine = create_async_engine(DATABASE_URL, echo=settings.app.debug)
