@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 7759358cc3f2
+Revision ID: c20ee987ab46
 Revises: 5b64746fec88
-Create Date: 2024-01-26 10:10:23.834356
+Create Date: 2024-01-26 13:37:29.495354
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '7759358cc3f2'
+revision: str = 'c20ee987ab46'
 down_revision: Union[str, None] = '5b64746fec88'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -24,9 +24,9 @@ def upgrade() -> None:
     op.create_table('notification',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('recipient_id', sa.Integer(), nullable=False),
-    sa.Column('type', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('type', sa.Enum('SUCCESS', 'FAIL', 'COMMON', name='notificationtype'), nullable=False),
     sa.Column('header', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('text', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('content', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('is_read', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
     sa.PrimaryKeyConstraint('id'),
@@ -35,7 +35,7 @@ def upgrade() -> None:
     op.create_table('plan',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('aim_description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('status', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('status', sa.Enum('CREATED', 'IN_PROGRESS', 'DONE', 'FAILED', name='planstatus'), nullable=False),
     sa.Column('employee_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
     sa.Column('expires_at', sa.DateTime(), nullable=True),
@@ -43,9 +43,9 @@ def upgrade() -> None:
     schema='plans'
     )
     op.create_table('user',
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('full_name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('position', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('token', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('supervisor_id', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
@@ -55,7 +55,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('status', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('status', sa.Enum('CREATED', 'IN_PROGRESS', 'DONE', 'FAILED', 'UNDER_REVIEW', name='taskstatus'), nullable=False),
     sa.Column('plan_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
     sa.Column('expires_at', sa.DateTime(), nullable=True),
@@ -67,7 +67,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('task_id', sa.Integer(), nullable=False),
     sa.Column('author_id', sa.Integer(), nullable=False),
-    sa.Column('type', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('type', sa.Enum('TEXT', 'FILE', 'LINK', name='commenttype'), nullable=False),
     sa.Column('content', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('is_read', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),

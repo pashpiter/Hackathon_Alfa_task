@@ -9,7 +9,7 @@ DEBUG можно использовать для разнообразной ло
 в db/database.py при создании движка - выводить/не выводить запросы в консоль.
 """
 
-BASE_DIR: Path = Path(__file__).parent
+BASE_DIR: Path = Path(__file__).parent.parent
 LOG_DIR: Path = BASE_DIR / 'logs'
 
 
@@ -17,7 +17,7 @@ class AppSettings(BaseSettings):
     def __init__(self):
         os.makedirs(LOG_DIR, exist_ok=True)
         super().__init__()
-
+    name: str = Field('ИПР для сотрудников Альфа-Банка', alias='APP_NAME')
     debug: bool = Field(False, alias='DEBUG')
 
 

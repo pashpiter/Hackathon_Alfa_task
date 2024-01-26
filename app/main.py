@@ -1,29 +1,13 @@
 from fastapi import FastAPI
-from plan.routers import plan_router
+from fastapi.responses import ORJSONResponse
+from api.v1.routers import v1_router
+from core.config import settings
 
-"""
-Как сделать версионирование
-def create_app():
-    app = FastAPI()
+app = FastAPI(
+    title=settings.app.name,
+    docs_url='/api/v1/openapi',
+    openapi_url='/api/v1/openapi.json',
+    default_response_class=ORJSONResponse,
+)
 
-    app.include_router(book_routers_v1.router, prefix="/v1")
-
-    return app
-"""
-
-app = FastAPI()
-
-app.include_router(plan_router)
-
-
-@app.get('/ping')
-async def ping():
-    """Проверка работы сервера"""
-    return {'app': 'Hackathon Alfa Task App v1.0'}
-
-
-@app.get('/employee')
-async def get_employee():
-    """Поиск группы или определенного сотрудника
-    по id, fullName, subdivision, position"""
-    pass
+app.include_router(v1_router)

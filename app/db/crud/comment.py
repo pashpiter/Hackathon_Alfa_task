@@ -1,6 +1,6 @@
 from core.logger import logger_factory
 from db.crud.base import CRUDBase
-from plan.schemas import Comment
+from schemas import Comment
 
 
 class CRUDComment(CRUDBase):
