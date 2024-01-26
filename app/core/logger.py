@@ -3,7 +3,7 @@ from functools import cache
 from logging.handlers import RotatingFileHandler
 from sys import stdout
 
-from app_config import settings
+from core.config import settings
 
 
 @cache

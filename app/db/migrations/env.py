@@ -5,8 +5,8 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from db.database import SQLModel
-from plan.schemas import *
-from app_config import settings
+from schemas import *  # noqa
+from core.config import settings
 
 from alembic import context
 
