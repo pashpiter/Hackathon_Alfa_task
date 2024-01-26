@@ -1,28 +1,44 @@
-# Используйте SQLModel!!!!!  https://sqlmodel.tiangolo.com/tutorial/fastapi/
-# ПРИМЕР https://sqlmodel.tiangolo.com/tutorial/fastapi/session-with-dependency/
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, text, DateTime, Column
 from typing import Optional
+from datetime import datetime
+import enum
+from app_config import settings
+
+PK_TYPE = int
+USER_PK_TYPE = int
 
 
-class PrimaryKey():
+class PrimaryKey:
     """Класс для добавления id(pk) к схемам"""
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
+
+
+# *****************************************************************************
 
 
 class UserBase(SQLModel):
-    pass
+    full_name: str
+    position: str
 
 
 class User(UserBase, PrimaryKey, table=True):
-    pass
+    __table_args__ = {'schema': settings.postgres.schema}
+
+    token: str
+    supervisor_id: Optional[int]
 
 
 class UserRead(UserBase):
     pass
 
 
-class SupervisorEmployee(SQLModel, PrimaryKey, table=True):
-    pass
+# *****************************************************************************
+
+class PlanStatus(str, enum.Enum):
+    CREATED = 'created'
+    IN_PROGRESS = 'in_progress'
+    DONE = 'done'
+    FAILED = 'failed'
 
 
 class PlanBase(SQLModel):
@@ -30,7 +46,24 @@ class PlanBase(SQLModel):
 
 
 class Plan(PlanBase, PrimaryKey, table=True):
-    pass
+    __table_args__ = {'schema': settings.postgres.schema}
+
+    aim_description: str
+    status: PlanStatus
+    employee_id: USER_PK_TYPE
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=False,
+            server_default=text("TIMEZONE('utc', now())")
+        )
+    )
+    expires_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=True
+        )
+    )
 
 
 class PlanCreate(PlanBase):
@@ -41,17 +74,45 @@ class PlanRead(PlanBase):
     pass
 
 
-class PlanUpdate(SQLModel):
-    # Взять поля из плана, которые можно менять
+class PlanUpdate(PlanBase):
     pass
+
+
+# *****************************************************************************
+
+
+class TaskStatus(str, enum.Enum):
+    CREATED = 'created'
+    IN_PROGRESS = 'in_progress'
+    DONE = 'done'
+    FAILED = 'failed'
+    UNDER_REVIEW = 'under_review'
 
 
 class TaskBase(SQLModel):
     pass
 
 
-class Task(TaskBase, PrimaryKey):
-    pass
+class Task(TaskBase, PrimaryKey, table=True):
+    __table_args__ = {'schema': settings.postgres.schema}
+
+    name: str
+    description: str
+    status: TaskStatus
+    plan_id: PK_TYPE = Field(default=None, foreign_key='plan.id')
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=False,
+            server_default=text("TIMEZONE('utc', now())")
+        )
+    )
+    expires_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=True
+        )
+    )
 
 
 class TaskCreate(TaskBase):
@@ -62,9 +123,17 @@ class TaskRead(TaskBase):
     pass
 
 
-class TaskUpdate(SQLModel):
-    # Взять поля из задачи, которые можно менять
+class TaskUpdate(TaskBase):
     pass
+
+
+# *****************************************************************************
+
+
+class CommentType(str, enum.Enum):
+    TEXT = 'text'
+    FILE = 'file'
+    LINK = 'link'
 
 
 class CommentBase(SQLModel):
@@ -72,7 +141,20 @@ class CommentBase(SQLModel):
 
 
 class Comment(CommentBase, PrimaryKey, table=True):
-    pass
+    __table_args__ = {'schema': settings.postgres.schema}
+
+    task_id: PK_TYPE = Field(default=None, foreign_key='task.id')
+    author_id: USER_PK_TYPE
+    type: CommentType
+    content: str
+    is_read: bool = Field(default=False)
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=False,
+            server_default=text("TIMEZONE('utc', now())")
+        )
+    )
 
 
 class CommentRead(CommentBase):
@@ -83,17 +165,43 @@ class CommentCreate(CommentBase):
     pass
 
 
-class AttachmentBase(SQLModel):
+# *****************************************************************************
+
+
+class NotificationType(str, enum.Enum):
+    SUCCESS = 'success'
+    FAIL = 'fail'
+    COMMON = 'common'
+
+
+class NotificationBase(SQLModel):
     pass
 
 
-class Attachment(AttachmentBase, PrimaryKey, table=True):
+class Notification(NotificationBase, PrimaryKey, table=True):
+    __table_args__ = {'schema': settings.postgres.schema}
+
+    recipient_id: USER_PK_TYPE
+    type: NotificationType
+    header: str
+    text: str
+    is_read: bool = Field(default=False)
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(
+            DateTime,
+            nullable=False,
+            server_default=text("TIMEZONE('utc', now())")
+        ),
+    )
+
+
+class NotificationCreate(NotificationBase):
     pass
 
 
-class AttachmentCreate(AttachmentBase):
+class NotificationRead(NotificationBase):
     pass
 
 
-class AttachmentRead(AttachmentBase):
+class NotificationUpdate(NotificationBase):
     pass

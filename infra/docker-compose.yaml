@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: plans-postgres
+    hostname: ${POSTGRES_HOST}
+    restart: on-failure
+    expose:
+      - ${POSTGRES_PORT}
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - env/postgres
+
+volumes:
+  postgres_data:

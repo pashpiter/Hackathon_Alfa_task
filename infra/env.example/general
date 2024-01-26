@@ -1,0 +1,7 @@
+POSTGRES_VERSION=15
+
+# Hosts
+POSTGRES_HOST=postgres
+
+# Ports
+POSTGRES_PORT=5432

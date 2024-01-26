@@ -1,12 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlmodel import SQLModel
 
-from app.app_config import settings
+from app_config import settings
 
 
-DATABASE_URL = settings.database_URL
+SQLModel.metadata.schema = settings.postgres.schema
+DATABASE_URL = settings.postgres.database_url
 
-async_engine = create_async_engine(DATABASE_URL, echo=settings.DEBUG)
+async_engine = create_async_engine(DATABASE_URL, echo=settings.app.debug)
 
 async_session_factory = sessionmaker(
     async_engine,
