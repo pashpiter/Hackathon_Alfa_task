@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: dab068d0d2e2
+Revision ID: 7759358cc3f2
 Revises: 5b64746fec88
-Create Date: 2024-01-25 12:01:24.896629
+Create Date: 2024-01-26 10:10:23.834356
 
 """
 from typing import Sequence, Union
@@ -11,8 +11,9 @@ from alembic import op
 import sqlalchemy as sa
 import sqlmodel
 
+
 # revision identifiers, used by Alembic.
-revision: str = 'dab068d0d2e2'
+revision: str = '7759358cc3f2'
 down_revision: Union[str, None] = '5b64746fec88'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,7 +26,7 @@ def upgrade() -> None:
     sa.Column('recipient_id', sa.Integer(), nullable=False),
     sa.Column('type', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('header', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('content', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('text', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('is_read', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
     sa.PrimaryKeyConstraint('id'),
@@ -33,31 +34,31 @@ def upgrade() -> None:
     )
     op.create_table('plan',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('aim_description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('status', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('employee_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
-    sa.Column('expired_at', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
-    schema='plans'
-    )
-    op.create_table('supervisoremployee',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('expires_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     schema='plans'
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('full_name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('position', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('token', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('supervisor_id', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     schema='plans'
     )
     op.create_table('task',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('aim_description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('status', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('plan_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
-    sa.Column('expired_at', sa.DateTime(), nullable=True),
+    sa.Column('expires_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['plan_id'], ['plans.plan.id'], ),
     sa.PrimaryKeyConstraint('id'),
     schema='plans'
@@ -82,7 +83,6 @@ def downgrade() -> None:
     op.drop_table('comment', schema='plans')
     op.drop_table('task', schema='plans')
     op.drop_table('user', schema='plans')
-    op.drop_table('supervisoremployee', schema='plans')
     op.drop_table('plan', schema='plans')
     op.drop_table('notification', schema='plans')
     # ### end Alembic commands ###

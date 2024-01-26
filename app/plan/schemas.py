@@ -1,12 +1,17 @@
-# Используйте SQLModel!!!!!  https://sqlmodel.tiangolo.com/tutorial/fastapi/
-# ПРИМЕР https://sqlmodel.tiangolo.com/tutorial/fastapi/session-with-dependency/
 from sqlmodel import SQLModel, Field, text, DateTime, Column
 from typing import Optional
 from datetime import datetime
-
+import enum
 
 PK_TYPE = int
 USER_PK_TYPE = int
+
+
+class StatusBase:
+    CREATED = 'created'
+    IN_PROGRESS = 'in_progress'
+    DONE = 'done'
+    FAILED = 'failed'
 
 
 class PrimaryKey:
@@ -14,23 +19,27 @@ class PrimaryKey:
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
 
 
+# *****************************************************************************
+
+
 class UserBase(SQLModel):
-    pass
+    full_name: str
+    position: str
 
 
 class User(UserBase, PrimaryKey, table=True):
-    pass
+    token: str
+    supervisor_id: Optional[int]
 
 
 class UserRead(UserBase):
     pass
 
 
-class SupervisorEmployee(SQLModel, PrimaryKey, table=True):
-    pass
-
-
 # *****************************************************************************
+
+class PlanStatus(StatusBase, str, enum.Enum):
+    pass
 
 
 class PlanBase(SQLModel):
@@ -38,8 +47,8 @@ class PlanBase(SQLModel):
 
 
 class Plan(PlanBase, PrimaryKey, table=True):
-    name: str
-    status: str  # TODO: добавить Enum
+    aim_description: str
+    status: str = Field(sa_column_kwargs={'info': {'choices': PlanStatus}})
     employee_id: USER_PK_TYPE
     created_at: Optional[datetime] = Field(
         sa_column=Column(
@@ -48,7 +57,7 @@ class Plan(PlanBase, PrimaryKey, table=True):
             server_default=text("TIMEZONE('utc', now())")
         )
     )
-    expired_at: Optional[datetime] = Field(
+    expires_at: Optional[datetime] = Field(
         sa_column=Column(
             DateTime,
             nullable=True
@@ -71,13 +80,18 @@ class PlanUpdate(PlanBase):
 # *****************************************************************************
 
 
+class TaskStatus(StatusBase, str, enum.Enum):
+    UNDER_REVIEW = 'under_review'
+
+
 class TaskBase(SQLModel):
     pass
 
 
 class Task(TaskBase, PrimaryKey, table=True):
-    aim_description: str
-    status: str  # TODO: добавить Enum
+    name: str
+    description: str
+    status: str = Field(sa_column_kwargs={'info': {'choices': TaskStatus}})
     plan_id: PK_TYPE = Field(default=None, foreign_key='plan.id')
     created_at: Optional[datetime] = Field(
         sa_column=Column(
@@ -86,7 +100,7 @@ class Task(TaskBase, PrimaryKey, table=True):
             server_default=text("TIMEZONE('utc', now())")
         )
     )
-    expired_at: Optional[datetime] = Field(
+    expires_at: Optional[datetime] = Field(
         sa_column=Column(
             DateTime,
             nullable=True
@@ -109,6 +123,12 @@ class TaskUpdate(TaskBase):
 # *****************************************************************************
 
 
+class CommentType(str, enum.Enum):
+    TEXT = 'text'
+    FILE = 'file'
+    LINK = 'link'
+
+
 class CommentBase(SQLModel):
     pass
 
@@ -116,7 +136,7 @@ class CommentBase(SQLModel):
 class Comment(CommentBase, PrimaryKey, table=True):
     task_id: PK_TYPE = Field(default=None, foreign_key='task.id')
     author_id: USER_PK_TYPE
-    type: str  # TODO: добавить Enum
+    type: str = Field(sa_column_kwargs={'info': {'choices': CommentType}})
     content: str
     is_read: bool = Field(default=False)
     created_at: Optional[datetime] = Field(
@@ -139,6 +159,12 @@ class CommentCreate(CommentBase):
 # *****************************************************************************
 
 
+class NotificationType(str, enum.Enum):
+    SUCCESS = 'success'
+    FAIL = 'fail'
+    COMMON = 'common'
+
+
 class NotificationBase(SQLModel):
     pass
 
@@ -147,14 +173,14 @@ class Notification(NotificationBase, PrimaryKey, table=True):
     recipient_id: USER_PK_TYPE
     type: str  # TODO: добавить Enum
     header: str
-    content: str
+    text: str
     is_read: bool = Field(default=False)
     created_at: Optional[datetime] = Field(
         sa_column=Column(
             DateTime,
             nullable=False,
             server_default=text("TIMEZONE('utc', now())")
-        )
+        ),
     )
 
 
