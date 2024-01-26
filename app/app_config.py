@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
@@ -7,8 +9,22 @@ DEBUG можно использовать для разнообразной ло
 в db/database.py при создании движка - выводить/не выводить запросы в консоль.
 """
 
+BASE_DIR: Path = Path(__file__).parent
+LOG_DIR: Path = BASE_DIR / 'logs'
+
 
 class AppSettings(BaseSettings):
+    def __init__(self):
+        os.makedirs(LOG_DIR, exist_ok=True)
+        super().__init__()
+
+    debug: bool = Field(False, alias='DEBUG')
+
+
+class LoggingSettings(BaseSettings):
+    log_file: Path = LOG_DIR / 'plans.log'
+    log_format: str = '"%(asctime)s - [%(levelname)s] - [%(name)s] - %(message)s"'
+    dt_format: str = '%d.%m.%Y %H:%M:%S'
     debug: bool = Field(False, alias='DEBUG')
 
 
@@ -33,6 +49,7 @@ class PostgresSettings(BaseSettings):
 
 class Settings:
     app: AppSettings = AppSettings()
+    logging: LoggingSettings = LoggingSettings()
     postgres: PostgresSettings = PostgresSettings()
 
 

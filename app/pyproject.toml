@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "ИПР для сотрудников Альфа-Банка"
+description = ""
+version = "0.1.0"
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "0.100.1"
+uvicorn = "^0.23.2"
+pydantic = "^2.4.2"
+pydantic-settings = "^2.0.3"
+sqlalchemy = "^2.0.22"
+alembic = "^1.12.1"
+psycopg2-binary = "^2.9.9"
+asyncpg = "^0.28.0"
+greenlet = "^3.0.1"
+gunicorn = "^21.2.0"
+sqlmodel = "^0.0.14"
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.12.0"
+flake8 = "^6.1.0"
+flake8-blind-except = "^0.2.1"
+flake8-broken-line = "^1.0.0"
+flake8-return = "^1.2.0"
+flake8-variables-names = "^0.0.6"
+pep8-naming = "^0.13.3"
+mypy = "^1.6.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

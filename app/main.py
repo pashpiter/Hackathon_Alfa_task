@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.plan.routers import plan_router
+from plan.routers import plan_router
 
 """
 Как сделать версионирование

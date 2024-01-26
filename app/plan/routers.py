@@ -2,9 +2,9 @@ from typing import List
 
 from fastapi import APIRouter
 
-from app.plan.schemas import (Plan, PlanBase, PlanCreate, PlanRead, PlanUpdate,
-                              Task, TaskBase, TaskCreate, TaskRead, TaskUpdate,
-                              Comment, CommentBase, CommentRead, CommentCreate)
+from plan.schemas import (Plan, PlanBase, PlanCreate, PlanRead, PlanUpdate,
+                          Task, TaskBase, TaskCreate, TaskRead, TaskUpdate,
+                          Comment, CommentBase, CommentRead, CommentCreate)
 
 # Роутер для ИПР
 plan_router = APIRouter(prefix="/plans", tags=["Plans"])
