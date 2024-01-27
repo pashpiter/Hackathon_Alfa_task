@@ -1,18 +1,18 @@
 # flake8: noqa: E501
 from http import HTTPStatus
-import aiofiles
 
+import aiofiles
 from fastapi import APIRouter, Depends, UploadFile
 
 from api.v1 import openapi, validators
+from core.config import ATTACHMENT, ATTACHMENT_DIR
 from core.logger import logger_factory
+from core.utils import create_mock_file
+from db.crud import comment_crud
 from db.database import AsyncSession, get_async_session
 from schemas.base import PK_TYPE
 from schemas.comment import CommentCreate, CommentRead
 from services.user import User, get_user
-from db.crud import comment_crud
-from core.config import ATTACHMENT, ATTACHMENT_DIR
-from core.utils import create_mock_file
 
 logger = logger_factory(__name__)
 

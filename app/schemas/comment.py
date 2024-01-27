@@ -3,12 +3,12 @@ import enum
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import Column, DateTime, Field, SQLModel, text, Relationship
+from pydantic import BaseModel, HttpUrl, model_validator
+from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, text
 
 from core.config import settings
 from schemas.base import PK_TYPE, USER_PK_TYPE
-from pydantic import BaseModel, HttpUrl, model_validator
-from schemas.user import UserRead, User
+from schemas.user import User, UserRead
 
 # Разделитель, используемый при записи ссылки в БД. В самой БД хранится в виде:
 # <текст ссылки><РАЗДЕЛИТЕЛЬ><url ссылки>

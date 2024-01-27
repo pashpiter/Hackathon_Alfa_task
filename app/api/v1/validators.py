@@ -1,7 +1,7 @@
-from db.crud import task_crud, plan_crud, user_crud
+from core.exceptions import ForbiddenException, NotFoundException
+from db.crud import plan_crud, task_crud, user_crud
 from db.database import AsyncSession
 from schemas.base import PK_TYPE, USER_PK_TYPE
-from core.exceptions import ForbiddenException, NotFoundException
 
 TASK_NOT_FOUND = 'Задачи с id={} не существует'
 ACCESS_DENIED = ('Можно смотреть только комментарии к задачам своего ИПР или '

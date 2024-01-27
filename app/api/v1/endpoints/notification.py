@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from api.v1 import openapi
 from core.logger import logger_factory
 from db.database import AsyncSession, get_async_session
-from schemas.notification import NotificationRead, PK_TYPE
+from schemas.notification import PK_TYPE, NotificationRead
 from services.user import User, get_user
 
 logger = logger_factory(__name__)
