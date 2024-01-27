@@ -4,7 +4,7 @@ from sqlmodel import SQLModel
 
 from core.config import settings
 
-SQLModel.metadata.schema = settings.postgres.schema
+SQLModel.metadata.schema = settings.postgres.db_schema
 DATABASE_URL = settings.postgres.database_url
 
 async_engine = create_async_engine(DATABASE_URL, echo=settings.app.debug)

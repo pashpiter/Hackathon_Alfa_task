@@ -5,7 +5,7 @@ from typing import Optional
 from sqlmodel import Column, DateTime, Field, SQLModel, text
 
 from core.config import settings
-from schemas.base import USER_PK_TYPE, PrimaryKey
+from schemas.base import PK_TYPE, USER_PK_TYPE
 
 
 class PlanStatus(str, enum.Enum):
@@ -19,11 +19,12 @@ class PlanBase(SQLModel):
     pass
 
 
-class Plan(PlanBase, PrimaryKey, table=True):
-    __table_args__ = {'schema': settings.postgres.schema}
+class Plan(PlanBase, table=True):
+    __table_args__ = {'schema': settings.postgres.db_schema}
 
+    id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
     aim_description: str
-    status: PlanStatus
+    status: PlanStatus = Field(default=PlanStatus.CREATED)
     employee_id: USER_PK_TYPE
     created_at: Optional[datetime] = Field(
         sa_column=Column(

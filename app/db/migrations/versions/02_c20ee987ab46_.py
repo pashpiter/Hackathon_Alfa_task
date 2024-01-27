@@ -68,7 +68,6 @@ def upgrade() -> None:
     sa.Column('author_id', sa.Integer(), nullable=False),
     sa.Column('type', sa.Enum('TEXT', 'FILE', 'LINK', name='commenttype'), nullable=False),
     sa.Column('content', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('is_read', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
     sa.ForeignKeyConstraint(['task_id'], ['plans.task.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -84,4 +83,8 @@ def downgrade() -> None:
     op.drop_table('user', schema='plans')
     op.drop_table('plan', schema='plans')
     op.drop_table('notification', schema='plans')
+    op.execute('DROP TYPE public.commenttype')
+    op.execute('DROP TYPE public.notificationtype')
+    op.execute('DROP TYPE public.planstatus')
+    op.execute('DROP TYPE public.taskstatus')
     # ### end Alembic commands ###

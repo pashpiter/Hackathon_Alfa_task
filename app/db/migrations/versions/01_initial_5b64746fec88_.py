@@ -19,8 +19,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.execute(f"CREATE SCHEMA IF NOT EXISTS {settings.postgres.schema};")
+    op.execute(f"CREATE SCHEMA IF NOT EXISTS {settings.postgres.db_schema};")
 
 
 def downgrade() -> None:
-    op.execute(f"DROP SCHEMA IF EXISTS {settings.postgres.schema};")
+    op.execute(f"DROP SCHEMA IF EXISTS {settings.postgres.db_schema};")

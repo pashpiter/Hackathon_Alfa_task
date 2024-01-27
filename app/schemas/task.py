@@ -5,7 +5,7 @@ from typing import Optional
 from sqlmodel import Column, DateTime, Field, SQLModel, text
 
 from core.config import settings
-from schemas.base import PK_TYPE, PrimaryKey
+from schemas.base import PK_TYPE
 
 
 class TaskStatus(str, enum.Enum):
@@ -20,12 +20,13 @@ class TaskBase(SQLModel):
     pass
 
 
-class Task(TaskBase, PrimaryKey, table=True):
+class Task(TaskBase, table=True):
     __table_args__ = {'schema': settings.postgres.schema}
 
+    id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
     name: str
     description: str
-    status: TaskStatus
+    status: TaskStatus = Field(default=TaskStatus.CREATED)
     plan_id: PK_TYPE = Field(default=None, foreign_key='plan.id')
     created_at: Optional[datetime] = Field(
         sa_column=Column(
