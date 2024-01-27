@@ -16,7 +16,6 @@ class NotificationType(str, enum.Enum):
 
 
 class NotificationBase(SQLModel):
-    recipient_id: USER_PK_TYPE
     type: NotificationType
     header: str
     content: str
@@ -27,6 +26,7 @@ class Notification(NotificationBase, table=True):
     __table_args__ = {'schema': settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
+    recipient_id: USER_PK_TYPE
     created_at: Optional[datetime] = Field(
         default=None,
         sa_column=Column(
