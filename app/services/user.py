@@ -6,6 +6,9 @@ from db.crud import user_crud
 from db.database import AsyncSession, get_async_session
 from schemas.user import User
 
+MISSING_TOKEN = 'В заголовке http запроса отсутствует Bearer токен'
+USER_NOT_FOUND = 'Пользователь не найден'
+
 
 async def get_user(
         token: str | None = Header(default=None, alias='Authorization'),
@@ -15,14 +18,14 @@ async def get_user(
     if token is None:
         raise HTTPException(
             status_code=HTTPStatus.FORBIDDEN,
-            detail='Missing token in request header'
+            detail=MISSING_TOKEN
         )
 
     user = await user_crud.get(session, {'token': token.split()[-1]})
     if user is None:
         raise HTTPException(
             status_code=HTTPStatus.FORBIDDEN,
-            detail="User isn't found"
+            detail=USER_NOT_FOUND
         )
 
     return user
