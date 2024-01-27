@@ -8,8 +8,8 @@ Create Date: 2024-01-25 11:32:34.351286
 from typing import Sequence, Union
 
 from alembic import op
-from core.config import settings
 
+from core.config import settings
 
 # revision identifiers, used by Alembic.
 revision: str = '5b64746fec88'

@@ -1,9 +1,10 @@
 from http import HTTPStatus
 
-from schemas.user import User
-from fastapi import Header, HTTPException, Depends
-from db.database import AsyncSession, get_async_session
+from fastapi import Depends, Header, HTTPException
+
 from db.crud import user_crud
+from db.database import AsyncSession, get_async_session
+from schemas.user import User
 
 
 async def get_user(

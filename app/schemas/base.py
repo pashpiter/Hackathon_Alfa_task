@@ -1,6 +1,7 @@
-from sqlmodel import Field
+# flake8: noqa: VNE003
 from typing import Optional
 
+from sqlmodel import Field
 
 PK_TYPE = int
 USER_PK_TYPE = int

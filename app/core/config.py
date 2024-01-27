@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
@@ -23,9 +24,9 @@ class AppSettings(BaseSettings):
 
 class LoggingSettings(BaseSettings):
     log_file: Path = LOG_DIR / 'plans.log'
-    log_format: str = '"%(asctime)s - [%(levelname)s] - [%(name)s] - %(message)s"'
+    log_format: str = '%(asctime)s - [%(levelname)s] - [%(name)s] - %(message)s'  # noqa:E501
     dt_format: str = '%d.%m.%Y %H:%M:%S'
-    debug: bool = Field(False, alias='DEBUG')
+    debug: bool = Field(True, alias='DEBUG')
 
 
 class PostgresSettings(BaseSettings):

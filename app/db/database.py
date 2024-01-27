@@ -4,7 +4,6 @@ from sqlmodel import SQLModel
 
 from core.config import settings
 
-
 SQLModel.metadata.schema = settings.postgres.schema
 DATABASE_URL = settings.postgres.database_url
 

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+
 from api.v1.routers import v1_router
 from core.config import settings
 

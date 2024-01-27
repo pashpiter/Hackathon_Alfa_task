@@ -11,5 +11,3 @@ create_comment = BaseOpenapi(
     description='',
     response_description=''
 )
-
-

@@ -2,11 +2,12 @@
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends
+
 from api.v1 import openapi
 from core.logger import logger_factory
 from db.database import AsyncSession, get_async_session
-from schemas.comment import CommentRead, CommentCreate
-from services.user import get_user, User
+from schemas.comment import CommentCreate, CommentRead
+from services.user import User, get_user
 
 logger = logger_factory(__name__)
 

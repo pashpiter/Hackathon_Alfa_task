@@ -1,7 +1,9 @@
-from sqlmodel import SQLModel, Field, text, DateTime, Column
-from typing import Optional
-from datetime import datetime
 import enum
+from datetime import datetime
+from typing import Optional
+
+from sqlmodel import Column, DateTime, Field, SQLModel, text
+
 from core.config import settings
 from schemas.base import PK_TYPE, PrimaryKey
 
