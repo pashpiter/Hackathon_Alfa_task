@@ -1,5 +1,8 @@
-from sqlmodel import SQLModel, Field
+# flake8: noqa: VNE003
 from typing import Optional
+
+from sqlmodel import Field, SQLModel
+
 from core.config import settings
 from schemas.base import USER_PK_TYPE
 

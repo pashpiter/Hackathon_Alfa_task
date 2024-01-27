@@ -2,10 +2,12 @@
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends
+
 from api.v1 import openapi
 from core.logger import logger_factory
 from db.database import AsyncSession, get_async_session
-from schemas.plan import PlanRead, PlanCreate, PlanUpdate
+from schemas.plan import PlanCreate, PlanRead, PlanUpdate
+from services.user import User, get_user
 
 logger = logger_factory(__name__)
 
@@ -19,6 +21,7 @@ router = APIRouter(prefix='/plans')
 )
 async def get_plan(
         plan_id: int,
+        user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Получение ИПР по id"""
@@ -31,6 +34,7 @@ async def get_plan(
     **openapi.plan.get_plans.model_dump()
 )
 async def get_plans(
+        user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Получение списка ИПРов"""
@@ -44,6 +48,7 @@ async def get_plans(
 )
 async def create_plan(
         plan: PlanCreate,
+        user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создание ИПР"""
@@ -58,6 +63,7 @@ async def create_plan(
 async def update_plan(
         plan_id: int,
         plan_update: PlanUpdate,
+        user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление ИПР"""

@@ -1,7 +1,10 @@
-from sqlmodel import SQLModel, Field, text, DateTime, Column
-from typing import Optional
-from datetime import datetime
+# flake8: noqa: VNE003
 import enum
+from datetime import datetime
+from typing import Optional
+
+from sqlmodel import Column, DateTime, Field, SQLModel, text
+
 from core.config import settings
 from schemas.base import PK_TYPE, USER_PK_TYPE, PrimaryKey
 

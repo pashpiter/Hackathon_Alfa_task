@@ -2,10 +2,12 @@
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends
+
 from api.v1 import openapi
 from core.logger import logger_factory
 from db.database import AsyncSession, get_async_session
-from schemas.task import TaskRead, TaskCreate, TaskUpdate
+from schemas.task import TaskCreate, TaskRead, TaskUpdate
+from services.user import User, get_user
 
 logger = logger_factory(__name__)
 
@@ -20,6 +22,7 @@ router = APIRouter(prefix="/plans/{plan_id}/tasks")
 async def get_task(
         plan_id: int,
         task_id: int,
+        user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Получение задачи по id."""
@@ -33,6 +36,7 @@ async def get_task(
 )
 async def get_tasks(
         plan_id: int,
+        user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Получение списка задач."""
@@ -47,6 +51,7 @@ async def get_tasks(
 async def create_task(
         plan_id: int,
         task_create: TaskCreate,
+        user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создание задачи."""
@@ -62,6 +67,7 @@ async def update_task(
         plan_id: int,
         task_id: int,
         task_patch: TaskUpdate,
+        user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление задачи."""
@@ -76,6 +82,7 @@ async def update_task(
 async def delete_task(
         plan_id: int,
         task_id: int,
+        user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Удаление задачи."""
