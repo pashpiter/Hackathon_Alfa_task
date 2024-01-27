@@ -17,14 +17,15 @@ class TaskStatus(str, enum.Enum):
 
 
 class TaskBase(SQLModel):
-    name: str
-    description: str
+    pass
 
 
 class Task(TaskBase, table=True):
     __table_args__ = {'schema': settings.postgres.schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
+    name: str
+    description: str
     status: TaskStatus = Field(default=TaskStatus.CREATED)
     plan_id: PK_TYPE = Field(default=None, foreign_key='plan.id')
     created_at: Optional[datetime] = Field(
@@ -47,12 +48,8 @@ class TaskCreate(TaskBase):
 
 
 class TaskRead(TaskBase):
-    id: PK_TYPE
-    created_at: datetime
+    pass
 
 
 class TaskUpdate(TaskBase):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    status: Optional[TaskStatus] = None
-    expires_at: Optional[datetime] = None
+    pass

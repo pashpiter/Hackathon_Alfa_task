@@ -23,7 +23,7 @@ class CommentBase(SQLModel):
 
 
 class Comment(CommentBase, table=True):
-    __table_args__ = {'schema': settings.postgres.schema}
+    __table_args__ = {'schema': settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
     task_id: PK_TYPE = Field(foreign_key='task.id')

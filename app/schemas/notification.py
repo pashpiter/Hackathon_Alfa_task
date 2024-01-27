@@ -24,7 +24,7 @@ class NotificationBase(SQLModel):
 
 
 class Notification(NotificationBase, table=True):
-    __table_args__ = {'schema': settings.postgres.schema}
+    __table_args__ = {'schema': settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
     created_at: Optional[datetime] = Field(

@@ -16,15 +16,16 @@ class PlanStatus(str, enum.Enum):
 
 
 class PlanBase(SQLModel):
-    aim_description: str
-    employee_id: USER_PK_TYPE
+    pass
 
 
 class Plan(PlanBase, table=True):
-    __table_args__ = {'schema': settings.postgres.schema}
+    __table_args__ = {'schema': settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
+    aim_description: str
     status: PlanStatus = Field(default=PlanStatus.CREATED)
+    employee_id: USER_PK_TYPE
     created_at: Optional[datetime] = Field(
         sa_column=Column(
             DateTime,
@@ -45,13 +46,8 @@ class PlanCreate(PlanBase):
 
 
 class PlanRead(PlanBase):
-    id: PK_TYPE
-    status: PlanStatus
-    created_at: datetime
-    expires_at: datetime
+    pass
 
 
 class PlanUpdate(PlanBase):
-    aim_description: Optional[str] = None
-    status: Optional[PlanStatus] = None
-    expires_at: Optional[datetime] = None
+    pass

@@ -35,7 +35,7 @@ class PostgresSettings(BaseSettings):
     user: str = Field('user', alias='POSTGRES_USER')
     password: str = Field('password', alias='POSTGRES_PASSWORD')
     db_name: str = Field('database', alias='POSTGRES_DB')
-    schema: str = Field('plans', alias='POSTGRES_SCHEMA')
+    db_schema: str = Field('plans', alias='POSTGRES_SCHEMA')
 
     @property
     def database_url(self) -> str:
