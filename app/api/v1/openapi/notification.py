@@ -2,12 +2,14 @@ from api.v1.openapi.base import BaseOpenapi
 
 get_notifications = BaseOpenapi(
     summary='Получить список уведомлений',
-    description='',
-    response_description=''
+    description=('Возвращает список всех уведомлений пользователя. Если '
+                 'выставить unread_only=true, вернёт только непрочитанные '
+                 'уведомления'),
+    response_description='Список уведомлений (всех или только непрочитанных)'
 )
 
-make_as_read = BaseOpenapi(
+read_notifications = BaseOpenapi(
     summary='Пометить уведомления прочитанными',
-    description='',
+    description='Помечает все уведомления с заданными id прочитанными',
     response_description=''
 )
