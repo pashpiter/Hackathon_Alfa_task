@@ -1,24 +1,24 @@
 import enum
-from http import HTTPStatus
 from datetime import datetime, timedelta
-from typing import Optional, List
-from pydantic import field_validator
-from fastapi import HTTPException
-
-from sqlmodel import Column, DateTime, Field, SQLModel, text, Relationship
+from http import HTTPStatus
+from typing import List, Optional
 
 from core.config import settings
-from schemas.comment import CommentRead, Comment
-from schemas.base import PK_TYPE
 from core.utils import date_now
+from fastapi import HTTPException
+from pydantic import field_validator
+from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, text
+
+from schemas.base import PK_TYPE
+from schemas.comment import CommentRead
 
 
 class TaskStatus(str, enum.Enum):
-    CREATED = 'created'
-    IN_PROGRESS = 'in_progress'
-    DONE = 'done'
-    FAILED = 'failed'
-    UNDER_REVIEW = 'under_review'
+    CREATED = "created"
+    IN_PROGRESS = "in_progress"
+    DONE = "done"
+    FAILED = "failed"
+    UNDER_REVIEW = "under_review"
 
 
 class TaskBase(SQLModel):
@@ -29,7 +29,7 @@ class TaskBase(SQLModel):
         sa_column=Column(
             DateTime,
             nullable=False,
-            server_default=text("TIMEZONE('utc', now())")
+            server_default=text("TIMEZONE("utc", now())")
         )
     )
     expires_at: Optional[datetime] = Field(
@@ -41,15 +41,15 @@ class TaskBase(SQLModel):
 
 
 class Task(TaskBase, table=True):
-    __table_args__ = {'schema': settings.postgres.db_schema}
+    __table_args__ = {"schema": settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
-    plan_id: PK_TYPE = Field(default=None, foreign_key='plan.id')
+    plan_id: PK_TYPE = Field(default=None, foreign_key="plan.id")
 
     # comments: List["Comment"] = Relationship(
     #     back_populates="comment",
     #     sa_relationship_kwargs={"cascade": "delete"})
-        # Doesn't work vvv
+        # Doesn"t work vvv
         # sa_relationship_kwargs={"cascade": "all, delete"})
 
 

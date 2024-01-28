@@ -1,17 +1,17 @@
 # flake8: noqa: E501
-from http import HTTPStatus
-
-from fastapi import APIRouter, Depends
 from datetime import datetime
+from http import HTTPStatus
 from typing import Union
 
 from api.v1 import openapi, validators
 from core.logger import logger_factory
-from db.crud import task_crud, plan_crud, comment_crud
+from db.crud import comment_crud, plan_crud, task_crud
 from db.database import AsyncSession, get_async_session
-from schemas.task import TaskCreate, TaskRead, TaskReadWithComments, TaskUpdate, TaskStatus
-from schemas.plan import PlanStatus
+from fastapi import APIRouter, Depends
 from schemas.comment import CommentType
+from schemas.plan import PlanStatus
+from schemas.task import (TaskCreate, TaskRead, TaskReadWithComments,
+                          TaskStatus, TaskUpdate)
 from services.user import User, get_user
 
 logger = logger_factory(__name__)
@@ -34,18 +34,18 @@ async def get_task(
     статуса плна"""
     await validators.check_task_and_user_access(task_id, user.id, session)
     task = await task_crud.get(
-        session, {'id': task_id}
+        session, {"id": task_id}
     )
     # Проверка статуса задачи и изменение статуса задачи и статуса плана
     if task.status == TaskStatus.CREATED and user.supervisor_id:
         await task_crud.update(
             session,
-            {'id': task_id},
-            {'status': TaskStatus.IN_PROGRESS}
+            {"id": task_id},
+            {"status": TaskStatus.IN_PROGRESS}
         )
         await plan_crud.update(
             session,
-            {'id': plan_id},
+            {"id": plan_id},
             {"status": PlanStatus.IN_PROGRESS}
         )
     task.status = TaskStatus.IN_PROGRESS
@@ -64,7 +64,7 @@ async def get_tasks(
 ):
     """Получение списка задач."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
-    return await task_crud.get_all(session, {'plan_id': plan_id})
+    return await task_crud.get_all(session, {"plan_id": plan_id})
 
 
 @router.post(
@@ -93,7 +93,7 @@ async def create_task(
         "author_id": user.id,
         "type": CommentType.TEXT,
         "content": "Задача создана {}".format(
-            datetime.today().strftime('%d.%m.%Y')
+            datetime.today().strftime("%d.%m.%Y")
         )
     })
     return task
