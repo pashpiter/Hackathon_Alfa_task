@@ -2,12 +2,23 @@ from api.v1.openapi.base import BaseOpenapi
 
 get_comments = BaseOpenapi(
     summary='Получить список комментариев',
-    description='',
-    response_description=''
+    description=('Возвращает список комментариев для заданной задачи. Доступ '
+                 'имеет либо сам сотрудник, к чьему ИПР принадлежит задача, '
+                 'либо его начальник.'),
+    response_description='Список комментариев к задаче.'
 )
 
 create_comment = BaseOpenapi(
     summary='Создать комментарий',
-    description='',
-    response_description=''
+    description=('Создаёт комментарий к заданной задаче. Доступ имеет либо '
+                 'сам сотрудник, к чьему ИПР принадлежит задача, либо его '
+                 'начальник.')
+)
+
+upload_file = BaseOpenapi(
+    summary='Загрузить файл',
+    description=('Загружает файл и ассоциирует его с заданной задачей. Доступ '
+                 'имеет либо сам сотрудник, к чьему ИПР принадлежит задача, '
+                 'либо его начальник.'),
+    response_description='Путь к загруженному файлу.'
 )
