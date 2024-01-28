@@ -8,6 +8,7 @@ from core.logger import logger_factory
 from db.crud import comment_crud, plan_crud, task_crud
 from db.database import AsyncSession, get_async_session
 from fastapi import APIRouter, Depends
+from schemas.base import PK_TYPE
 from schemas.comment import CommentType
 from schemas.plan import PlanStatus
 from schemas.task import (TaskCreate, TaskRead, TaskReadWithComments,
@@ -25,8 +26,8 @@ router = APIRouter(prefix="/plans/{plan_id}/tasks")
     **openapi.task.get_task.model_dump()
 )
 async def get_task(
-        plan_id: int,
-        task_id: int,
+        plan_id: PK_TYPE,
+        task_id: PK_TYPE,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
@@ -58,7 +59,7 @@ async def get_task(
     **openapi.task.get_tasks.model_dump()
 )
 async def get_tasks(
-        plan_id: int,
+        plan_id: PK_TYPE,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
@@ -73,7 +74,7 @@ async def get_tasks(
     **openapi.task.create_task.model_dump()
 )
 async def create_task(
-        plan_id: int,
+        plan_id: PK_TYPE,
         task_create: TaskCreate,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
@@ -105,8 +106,8 @@ async def create_task(
     **openapi.task.update_task.model_dump()
 )
 async def update_task(
-        plan_id: int,
-        task_id: int,
+        plan_id: PK_TYPE,
+        task_id: PK_TYPE,
         task_patch: TaskUpdate,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
@@ -130,8 +131,8 @@ async def update_task(
     **openapi.task.delete_task.model_dump()
 )
 async def delete_task(
-        plan_id: int,
-        task_id: int,
+        plan_id: PK_TYPE,
+        task_id: PK_TYPE,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):

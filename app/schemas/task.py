@@ -29,7 +29,7 @@ class TaskBase(SQLModel):
         sa_column=Column(
             DateTime,
             nullable=False,
-            server_default=text("TIMEZONE("utc", now())")
+            server_default=text('TIMEZONE("utc", now())')
         )
     )
     expires_at: Optional[datetime] = Field(
