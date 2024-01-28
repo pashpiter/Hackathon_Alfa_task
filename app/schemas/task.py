@@ -1,11 +1,16 @@
 import enum
-from datetime import datetime
-from typing import Optional
+from http import HTTPStatus
+from datetime import datetime, timedelta
+from typing import Optional, List
+from pydantic import field_validator
+from fastapi import HTTPException
 
-from sqlmodel import Column, DateTime, Field, SQLModel, text
+from sqlmodel import Column, DateTime, Field, SQLModel, text, Relationship
 
 from core.config import settings
+from schemas.comment import CommentRead, Comment
 from schemas.base import PK_TYPE
+from core.utils import date_now
 
 
 class TaskStatus(str, enum.Enum):
@@ -17,17 +22,9 @@ class TaskStatus(str, enum.Enum):
 
 
 class TaskBase(SQLModel):
-    pass
-
-
-class Task(TaskBase, table=True):
-    __table_args__ = {'schema': settings.postgres.db_schema}
-
-    id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
     name: str
     description: str
     status: TaskStatus = Field(default=TaskStatus.CREATED)
-    plan_id: PK_TYPE = Field(default=None, foreign_key='plan.id')
     created_at: Optional[datetime] = Field(
         sa_column=Column(
             DateTime,
@@ -43,13 +40,43 @@ class Task(TaskBase, table=True):
     )
 
 
+class Task(TaskBase, table=True):
+    __table_args__ = {'schema': settings.postgres.db_schema}
+
+    id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
+    plan_id: PK_TYPE = Field(default=None, foreign_key='plan.id')
+
+    # comments: List["Comment"] = Relationship(
+    #     back_populates="comment",
+    #     sa_relationship_kwargs={"cascade": "delete"})
+        # Doesn't work vvv
+        # sa_relationship_kwargs={"cascade": "all, delete"})
+
+
 class TaskCreate(TaskBase):
-    pass
+    created_at: Optional[datetime] = date_now()
+
+    @field_validator("expires_at", mode="before")
+    def validate_date(cls, d: object) -> object:
+        if isinstance(d, str):
+            d = datetime.strptime(d, "%d.%m.%Y").date()
+        if d - date_now() < timedelta(days=1):
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN,
+                detail="Дата окончания не может быть меньше одного дня"
+            )
+        return d
 
 
 class TaskRead(TaskBase):
-    pass
+    id: int
 
 
-class TaskUpdate(TaskBase):
-    pass
+class TaskReadWithComments(TaskRead):
+    comments: List[CommentRead] = []
+
+
+class TaskUpdate(SQLModel):
+    name: str = None
+    description: str = None
+    status: Optional[TaskStatus] = None
