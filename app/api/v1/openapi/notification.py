@@ -5,3 +5,9 @@ get_notifications = BaseOpenapi(
     description='',
     response_description=''
 )
+
+make_as_read = BaseOpenapi(
+    summary='Пометить уведомления прочитанными',
+    description='',
+    response_description=''
+)
