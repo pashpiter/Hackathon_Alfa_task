@@ -3,17 +3,17 @@ from db.database import async_engine, async_session_factory
 from schemas.user import User
 
 bearer_tokens = [
-    "Bearer 0987654321zyxwvutsrqponmlkjihgfedcba",
-    "Bearer abcdefghijklmnopqrstuvwxyz1234567890",
-    "Bearer zyxwvutsrqponmlkjihgfedcba0987654321",
-    "Bearer 1234567890abcdefghijklmnopqrstuvwxyz0987654321",
-    "Bearer 0987654321zyxwvutsrqponmlkjihgfedcba1234567890",
-    "Bearer abcdefghijklmnopqrstuvwxyzzyxwvutsrqponmlkjihgfedcba",
-    "Bearer zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz",
-    "Bearer 1234567890zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz",
-    "Bearer 1a2b3c4d5e6f7g8h9i0j",
-    "Bearer 1234567890abcdefghijklmnopqrstuvwxyz",
-    "Bearer v1w2x3y4z5a6b7c8d9e0"
+    "0987654321zyxwvutsrqponmlkjihgfedcba",
+    "abcdefghijklmnopqrstuvwxyz1234567890",
+    "zyxwvutsrqponmlkjihgfedcba0987654321",
+    "1234567890abcdefghijklmnopqrstuvwxyz0987654321",
+    "0987654321zyxwvutsrqponmlkjihgfedcba1234567890",
+    "abcdefghijklmnopqrstuvwxyzzyxwvutsrqponmlkjihgfedcba",
+    "zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz",
+    "1234567890zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz",
+    "1a2b3c4d5e6f7g8h9i0j",
+    "1234567890abcdefghijklmnopqrstuvwxyz",
+    "v1w2x3y4z5a6b7c8d9e0"
 ]
 
 full_names = [
