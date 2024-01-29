@@ -22,7 +22,8 @@ class User(UserBase, table=True):
 
 class UserRead(UserBase):
     id: int
+    full_name: str
 
 
-class UserReadWithSupervisor(UserBase):
+class UserReadWithSupervisor(UserRead):
     supervisor: Optional[UserRead] = None
