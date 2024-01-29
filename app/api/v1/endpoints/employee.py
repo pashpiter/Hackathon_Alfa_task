@@ -11,7 +11,7 @@ from db.crud.user import user_crud
 
 logger = logger_factory(__name__)
 
-router = APIRouter(prefix='/employees')
+router = APIRouter(prefix="/employees")
 
 
 @router.get(
@@ -31,9 +31,10 @@ async def get_employee(
     employee = await user_crud.get(session, {"id": employee_id})
     if not employee:
         raise NotFoundException("Сотрудник не найден")
-    supervisor = await user_crud.get(session, {
-        "id": employee.supervisor_id
-    }) if employee.supervisor_id else None
+    supervisor = await user_crud.get(
+        session,
+        {"id": employee.supervisor_id}
+    ) if employee.supervisor_id else None
     return UserReadWithSupervisor(
         id=employee.id,
         full_name=employee.full_name,
@@ -47,7 +48,7 @@ async def get_employee(
     response_model=list[UserRead],
     **openapi.task.get_tasks.model_dump()
 )
-async def get_employees(
+async def search_employees(
         user: User = Depends(get_user),
         full_name: str = None,
         session: AsyncSession = Depends(get_async_session),
@@ -56,4 +57,16 @@ async def get_employees(
     с возможностью фильтрации по ФИО. При full_name = 'аша' выдаются все
     пользователи в фио которых есть совпадения с 'аша'."""
     # Валидация доступа
-    pass
+    await validators.check_role(user)
+    # Поиск сотрудников
+    employees = await user_crud.get_all(
+        session, attrs={"supervisor_id": user.id}
+    )
+    # Фильтрация по ФИО
+    if employees and full_name:
+        return [
+            x for x in employees if full_name.lower() in x.full_name.lower()
+        ]
+    if employees:
+        return employees
+    raise NotFoundException("Сотрудники не найдены")
