@@ -14,6 +14,8 @@ class CRUDPlan(CRUDBase):
             session: AsyncSession,
             employee_id: int
     ) -> Plan:
+        """Возвращает последний ИПР сотрудника по id."""
+
         plans = await plan_crud.get_all(
             session,
             {"employee_id": employee_id},

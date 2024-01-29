@@ -31,22 +31,23 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     schema='plans'
     )
-    op.create_table('plan',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('aim_description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('status', sa.Enum('CREATED', 'IN_PROGRESS', 'DONE', 'FAILED', name='planstatus'), nullable=False),
-    sa.Column('employee_id', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
-    sa.Column('expires_at', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
-    schema='plans'
-    )
     op.create_table('user',
     sa.Column('full_name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('position', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('token', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('supervisor_id', sa.Integer(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    schema='plans'
+    )
+    op.create_table('plan',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('aim_description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('status', sa.Enum('CREATED', 'IN_PROGRESS', 'DONE', 'FAILED', name='planstatus'), nullable=False),
+    sa.Column('employee_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.Date(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
+    sa.Column('expires_at', sa.Date(), nullable=True),
+    sa.ForeignKeyConstraint(['employee_id'], ['plans.user.id'], ),
     sa.PrimaryKeyConstraint('id'),
     schema='plans'
     )

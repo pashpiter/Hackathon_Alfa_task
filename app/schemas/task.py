@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime, timedelta, date
 from http import HTTPStatus
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from core.config import settings
 from core.utils import date_today
@@ -11,6 +11,8 @@ from sqlmodel import Column, Date, Field, Relationship, SQLModel, text
 
 from schemas.base import PK_TYPE
 from schemas.comment import CommentRead, Comment
+if TYPE_CHECKING:
+    from schemas.plan import Plan
 
 
 class TaskStatus(str, enum.Enum):
@@ -49,6 +51,7 @@ class Task(TaskBase, table=True):
     comments: Comment = Relationship(
         sa_relationship_kwargs={"cascade": "all, delete", "lazy": "joined"}
     )
+    plan: Optional["Plan"] = Relationship(back_populates="tasks")
 
 
 class TaskCreate(TaskBase):
