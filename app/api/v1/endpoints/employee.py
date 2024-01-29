@@ -17,14 +17,14 @@ router = APIRouter(prefix="/employees")
 @router.get(
     "/{employee_id}",
     response_model=UserReadWithSupervisor,
-    **openapi.task.get_task.model_dump()
+    **openapi.employee.get_employee.model_dump()
 )
 async def get_employee(
         employee_id: USER_PK_TYPE,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Получение сотрудника по id."""
+    """Получение информации о сотруднике"""
     # Валидация доступа
     await validators.check_role(user)
     # Проверка существования сотрудника
@@ -46,7 +46,7 @@ async def get_employee(
 @router.get(
     "/",
     response_model=list[UserRead],
-    **openapi.task.get_tasks.model_dump()
+    **openapi.employee.search_employees.model_dump()
 )
 async def search_employees(
         user: User = Depends(get_user),
@@ -63,14 +63,7 @@ async def search_employees(
         session, attrs={"supervisor_id": user.id}
     )
     # Фильтрация по ФИО
-    if employees:
-        if full_name:
-            filtered_employees = [
-                x for x in employees if full_name.lower() in x.full_name.lower()
-            ]
-            if filtered_employees:
-                return filtered_employees
-            else:
-                raise NotFoundException("Сотрудники не найдены")
-        return employees
-    raise NotFoundException("Сотрудники не найдены")
+    if full_name:
+        f_name_lower = full_name.lower()
+        return [x for x in employees if f_name_lower in x.full_name.lower()]
+    return employees

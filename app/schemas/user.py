@@ -23,7 +23,6 @@ class User(UserBase, table=True):
 
 class UserRead(UserBase):
     id: int
-    full_name: str
 
 
 class UserReadWithSupervisor(UserRead):
