@@ -29,8 +29,6 @@ async def check_task_and_user_access(
         raise NotFoundException(TASK_NOT_FOUND.format(task_id))
 
     plan = await plan_crud.get(session, {'id': task.plan_id})
-    if user_id == plan.employee_id:
-        return
     employee = await user_crud.get(session, {'id': plan.employee_id})
 
     if user_id not in [employee.id, employee.supervisor_id]:
