@@ -1,16 +1,16 @@
 import enum
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from http import HTTPStatus
 from typing import List, Optional
 
 from core.config import settings
-from core.utils import date_now
+from core.utils import date_today
 from fastapi import HTTPException
 from pydantic import field_validator
-from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, text
+from sqlmodel import Column, Date, Field, Relationship, SQLModel, text
 
 from schemas.base import PK_TYPE
-from schemas.comment import CommentRead
+from schemas.comment import CommentRead, Comment
 
 
 class TaskStatus(str, enum.Enum):
@@ -25,16 +25,16 @@ class TaskBase(SQLModel):
     name: str
     description: str
     status: TaskStatus = Field(default=TaskStatus.CREATED)
-    created_at: Optional[datetime] = Field(
+    created_at: Optional[date] = Field(
         sa_column=Column(
-            DateTime,
+            Date,
             nullable=False,
             server_default=text('TIMEZONE("utc", now())')
         )
     )
-    expires_at: Optional[datetime] = Field(
+    expires_at: Optional[date] = Field(
         sa_column=Column(
-            DateTime,
+            Date,
             nullable=True
         )
     )
@@ -44,23 +44,26 @@ class Task(TaskBase, table=True):
     __table_args__ = {"schema": settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
-    plan_id: PK_TYPE = Field(default=None, foreign_key="plan.id")
+    plan_id: PK_TYPE = Field(foreign_key="plan.id")
 
-    # comments: List["Comment"] = Relationship(
-    #     back_populates="comment",
-    #     sa_relationship_kwargs={"cascade": "delete"})
-        # Doesn"t work vvv
-        # sa_relationship_kwargs={"cascade": "all, delete"})
+    comments: Comment = Relationship(
+        sa_relationship_kwargs={"cascade": "all, delete", "lazy": "joined"}
+    )
 
 
 class TaskCreate(TaskBase):
-    created_at: Optional[datetime] = date_now()
+    created_at: Optional[date] = date_today()
 
     @field_validator("expires_at", mode="before")
     def validate_date(cls, d: object) -> object:
         if isinstance(d, str):
             d = datetime.strptime(d, "%d.%m.%Y").date()
-        if d - date_now() < timedelta(days=1):
+        if d < date_today():
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN,
+                detail="Нельзя установить дату в прошлом"
+            )
+        elif d - date_today() < timedelta(days=1):
             raise HTTPException(
                 status_code=HTTPStatus.FORBIDDEN,
                 detail="Дата окончания не может быть меньше одного дня"
@@ -69,14 +72,23 @@ class TaskCreate(TaskBase):
 
 
 class TaskRead(TaskBase):
-    id: int
+    id: PK_TYPE
 
 
 class TaskReadWithComments(TaskRead):
-    comments: List[CommentRead] = []
+    comments: List[CommentRead] | None = []
 
 
 class TaskUpdate(SQLModel):
-    name: str = None
-    description: str = None
+    name: Optional[str] = None
+    description: Optional[str] = None
     status: Optional[TaskStatus] = None
+    expires_at: Optional[date] = None
+
+    @field_validator("expires_at", mode="before")
+    def validate_date(cls, d: object) -> object:
+        if d is None:
+            return
+        if isinstance(d, str):
+            d = datetime.strptime(d, "%d.%m.%Y").date()
+        return d
