@@ -13,7 +13,7 @@ class UserBase(SQLModel):
 
 
 class User(UserBase, table=True):
-    __table_args__ = {'schema': settings.postgres.db_schema}
+    __table_args__ = {"schema": settings.postgres.db_schema}
 
     id: Optional[USER_PK_TYPE] = Field(default=None, primary_key=True)
     token: str
@@ -21,4 +21,8 @@ class User(UserBase, table=True):
 
 
 class UserRead(UserBase):
-    pass
+    id: int
+
+
+class UserReadWithSupervisor(UserBase):
+    supervisor: Optional[UserRead] = None

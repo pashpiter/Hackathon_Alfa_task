@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 
@@ -20,3 +21,7 @@ def create_mock_file(
             i += 1
 
     return new_filename
+
+
+def date_now() -> datetime:
+    return datetime.now().date()
