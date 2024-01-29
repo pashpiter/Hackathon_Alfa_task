@@ -63,10 +63,14 @@ async def search_employees(
         session, attrs={"supervisor_id": user.id}
     )
     # Фильтрация по ФИО
-    if employees and full_name:
-        return [
-            x for x in employees if full_name.lower() in x.full_name.lower()
-        ]
     if employees:
+        if full_name:
+            filtered_employees = [
+                x for x in employees if full_name.lower() in x.full_name.lower()
+            ]
+            if filtered_employees:
+                return filtered_employees
+            else:
+                raise NotFoundException("Сотрудники не найдены")
         return employees
     raise NotFoundException("Сотрудники не найдены")
