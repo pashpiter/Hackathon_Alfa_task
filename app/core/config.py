@@ -12,17 +12,21 @@ DEBUG можно использовать для разнообразной ло
 
 BASE_DIR: Path = Path(__file__).parent.parent
 
-LOG = 'logs'
+LOG: str = 'logs'
 LOG_DIR: Path = BASE_DIR / LOG
 
-ATTACHMENT = 'attachments'
+ATTACHMENT: str = 'attachments'
 ATTACHMENT_DIR: Path = BASE_DIR / ATTACHMENT
+
+STATIC: str = 'static'
+STATIC_DIR: Path = BASE_DIR / STATIC
 
 
 class AppSettings(BaseSettings):
     def __init__(self):
         os.makedirs(LOG_DIR, exist_ok=True)
         os.makedirs(ATTACHMENT_DIR, exist_ok=True)
+        os.makedirs(STATIC_DIR, exist_ok=True)
         super().__init__()
     name: str = Field('ИПР для сотрудников Альфа-Банка', alias='APP_NAME')
     debug: bool = Field(False, alias='DEBUG')
