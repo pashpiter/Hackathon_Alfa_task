@@ -10,7 +10,7 @@ from schemas.base import USER_PK_TYPE
 class UserBase(SQLModel):
     full_name: str
     position: str
-    # photo: Optional[str]
+    photo: Optional[str]
 
 
 class User(UserBase, table=True):
