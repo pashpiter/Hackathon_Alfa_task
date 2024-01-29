@@ -2,43 +2,68 @@ from fastapi import APIRouter, Depends
 
 from api.v1 import openapi, validators
 from core.logger import logger_factory
+from core.exceptions import NotFoundException
 from db.database import AsyncSession, get_async_session
 from schemas.base import USER_PK_TYPE
 from schemas.user import User, UserRead, UserReadWithSupervisor
 from services.user import get_user
+from db.crud.user import user_crud
 
 logger = logger_factory(__name__)
 
-router = APIRouter(prefix='/employees')
+router = APIRouter(prefix="/employees")
 
 
 @router.get(
     "/{employee_id}",
     response_model=UserReadWithSupervisor,
-    **openapi.task.get_task.model_dump()
+    **openapi.employee.get_employee.model_dump()
 )
-async def get_task(
+async def get_employee(
         employee_id: USER_PK_TYPE,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Получение сотрудника по id."""
+    """Получение информации о сотруднике"""
     # Валидация доступа
-    pass
+    await validators.check_role(user)
+    # Проверка существования сотрудника
+    employee = await user_crud.get(session, {"id": employee_id})
+    if not employee:
+        raise NotFoundException("Сотрудник не найден")
+    supervisor = await user_crud.get(
+        session,
+        {"id": employee.supervisor_id}
+    ) if employee.supervisor_id else None
+    return UserReadWithSupervisor(
+        id=employee.id,
+        full_name=employee.full_name,
+        position=employee.position,
+        supervisor=supervisor
+    )
 
 
 @router.get(
     "/",
     response_model=list[UserRead],
-    **openapi.task.get_tasks.model_dump()
+    **openapi.employee.search_employees.model_dump()
 )
-async def get_tasks(
+async def search_employees(
         user: User = Depends(get_user),
         full_name: str = None,
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Получение списка сотрудников относящихся к руководитлею
+    """Получение списка сотрудников относящихся к руководителю
     с возможностью фильтрации по ФИО. При full_name = 'аша' выдаются все
     пользователи в фио которых есть совпадения с 'аша'."""
     # Валидация доступа
-    pass
+    await validators.check_role(user)
+    # Поиск сотрудников
+    employees = await user_crud.get_all(
+        session, attrs={"supervisor_id": user.id}
+    )
+    # Фильтрация по ФИО
+    if full_name:
+        f_name_lower = full_name.lower()
+        return [x for x in employees if f_name_lower in x.full_name.lower()]
+    return employees

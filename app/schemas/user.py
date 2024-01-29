@@ -28,5 +28,5 @@ class UserRead(UserBase):
     id: int
 
 
-class UserReadWithSupervisor(UserBase):
+class UserReadWithSupervisor(UserRead):
     supervisor: Optional[UserRead] = None
