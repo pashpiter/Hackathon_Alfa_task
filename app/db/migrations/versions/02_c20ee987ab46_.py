@@ -12,7 +12,7 @@ import sqlmodel
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'c20ee987ab46'
+revision: str = 'c20ee987ab46a'
 down_revision: Union[str, None] = '5b64746fec88'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -56,8 +56,8 @@ def upgrade() -> None:
     sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('status', sa.Enum('CREATED', 'IN_PROGRESS', 'DONE', 'FAILED', 'UNDER_REVIEW', name='taskstatus'), nullable=False),
     sa.Column('plan_id', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
-    sa.Column('expires_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.Date(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
+    sa.Column('expires_at', sa.Date(), nullable=True),
     sa.ForeignKeyConstraint(['plan_id'], ['plans.plan.id'], ),
     sa.PrimaryKeyConstraint('id'),
     schema='plans'

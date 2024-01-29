@@ -1,5 +1,5 @@
 # flake8: noqa: E501
-from datetime import datetime
+from datetime import date
 from http import HTTPStatus
 from typing import Union
 
@@ -39,7 +39,7 @@ async def get_task(
     )
     # Проверка статуса задачи и изменение статуса задачи и статуса плана
     if task.status == TaskStatus.CREATED and user.supervisor_id:
-        await task_crud.update(
+        task = await task_crud.update(
             session,
             {"id": task_id},
             {"status": TaskStatus.IN_PROGRESS}
@@ -49,7 +49,6 @@ async def get_task(
             {"id": plan_id},
             {"status": PlanStatus.IN_PROGRESS}
         )
-    task.status = TaskStatus.IN_PROGRESS
     return task
 
 
@@ -82,19 +81,22 @@ async def create_task(
     """Создание задачи. Добавление нового нового комментарияк задаче."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
     await validators.check_role(user)
+    await validators.check_plan_tasks_expired_date(
+        session, plan_id, task_create.expires_at
+    )
     task = await task_crud.create(
         session, {
         **task_create.model_dump(),
         "plan_id": plan_id
         }
     )
-    # Добавление комментария
+    # Добавление комментария с датой создания
     await comment_crud.create(session, {
         "task_id": task.id,
         "author_id": user.id,
         "type": CommentType.TEXT,
         "content": "Задача создана {}".format(
-            datetime.today().strftime("%d.%m.%Y")
+            date.today().strftime("%d.%m.%Y")
         )
     })
     return task
