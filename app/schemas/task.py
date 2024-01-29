@@ -44,10 +44,14 @@ class Task(TaskBase, table=True):
     __table_args__ = {"schema": settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
-    plan_id: PK_TYPE = Field(foreign_key="plan.id")
+    plan_id: Optional[PK_TYPE] = Field(foreign_key="plan.id")
 
-    comments: Comment = Relationship(
-        sa_relationship_kwargs={"cascade": "all, delete", "lazy": "joined"}
+    comments: List["Comment"] = Relationship(
+        back_populates="task",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",
+            "lazy": "joined"
+        }
     )
 
 

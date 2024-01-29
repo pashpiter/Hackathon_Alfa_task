@@ -1,7 +1,7 @@
 # flake8: noqa: VNE003
 import enum
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from pydantic import BaseModel, HttpUrl, model_validator
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, text
@@ -10,6 +10,8 @@ from core.config import settings
 from schemas.base import PK_TYPE, USER_PK_TYPE
 from schemas.user import User, UserRead
 
+if TYPE_CHECKING:
+    from .task import Task
 # Разделитель, используемый при записи ссылки в БД. В самой БД хранится в виде:
 # <текст ссылки><РАЗДЕЛИТЕЛЬ><url ссылки>
 SEPARATOR = '$'
@@ -54,6 +56,7 @@ class Comment(CommentBase, table=True):
         )
     )
 
+    task: Optional["Task"] = Relationship(back_populates="comments")
     author: User = Relationship(sa_relationship_kwargs={"lazy": "joined"})
 
 
