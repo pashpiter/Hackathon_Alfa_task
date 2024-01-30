@@ -103,7 +103,11 @@ async def check_no_active_plan(
         employee_id: USER_PK_TYPE,
         session: AsyncSession
 ) -> None:
-    plans = await plan_crud.get_all(session, {"employee_id": employee_id})
+    plans = await plan_crud.get_all(
+        session,
+        {"employee_id": employee_id},
+        unique=True
+    )
     if any(plan.status in (
         PlanStatus.CREATED, PlanStatus.IN_PROGRESS
     ) for plan in plans):

@@ -27,7 +27,7 @@ class PlanBase(SQLModel):
     expires_at: Optional[date] = Field(
         sa_column=Column(
             Date,
-            nullable=True
+            nullable=False
         )
     )
 
@@ -47,19 +47,12 @@ class Plan(PlanBase, table=True):
     )
 
     tasks: List["Task"] = Relationship(
-        back_populates="plan",
         sa_relationship_kwargs={
             "cascade": "all, delete",
             "lazy": "joined"
         }
     )
-    employee: User = Relationship(
-        back_populates="plan",
-        sa_relationship_kwargs={
-            "cascade": "all, delete",
-            "lazy": "joined"
-        }
-    )
+    employee: User = Relationship(sa_relationship_kwargs={"lazy": "joined"})
 
 
 class PlanCreate(PlanBase):

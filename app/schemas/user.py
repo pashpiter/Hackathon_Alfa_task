@@ -1,12 +1,10 @@
 # flake8: noqa: VNE003
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 
 from core.config import settings
 from schemas.base import USER_PK_TYPE
-if TYPE_CHECKING:
-    from schemas.plan import Plan
 
 
 class UserBase(SQLModel):
@@ -20,8 +18,6 @@ class User(UserBase, table=True):
     id: Optional[USER_PK_TYPE] = Field(default=None, primary_key=True)
     token: str
     supervisor_id: Optional[int]
-
-    plan: Optional["Plan"] = Relationship(back_populates="employee")
 
 
 class UserRead(UserBase):

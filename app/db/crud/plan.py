@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
 
 from core.exceptions import NotFoundException
 from core.logger import logger_factory
@@ -16,10 +17,13 @@ class CRUDPlan(CRUDBase):
     ) -> Plan:
         """Возвращает последний ИПР сотрудника по id."""
 
-        plans = await plan_crud.get_all(
+        self.logger.debug(f'GET_LATEST_PLAN: attrs=({employee_id=})')
+
+        plans = await self.get_all(
             session,
             {"employee_id": employee_id},
-            sort="created_at desc"
+            sort="id desc",
+            unique=True
         )
         if not plans:
             raise NotFoundException(
@@ -31,10 +35,10 @@ class CRUDPlan(CRUDBase):
             self,
             session: AsyncSession,
             supervisor_id: int
-    ) -> list[Plan] | None:
+    ) -> List[Plan] | None:
         """Возвращает ИПР всех сотрудников по id руководителя."""
 
-        self.logger.debug(f"GET_EMPLOYEE'S_PLANS: attrs={supervisor_id=}")
+        self.logger.debug(f"GET_EMPLOYEE'S_PLANS: attrs=({supervisor_id=})")
 
         sub_query = select(User.id).where(User.supervisor_id == supervisor_id)
         query = select(Plan).where(Plan.employee_id.in_(sub_query))

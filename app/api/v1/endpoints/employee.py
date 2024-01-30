@@ -57,7 +57,7 @@ async def search_employees(
     с возможностью фильтрации по ФИО. При full_name = 'аша' выдаются все
     пользователи в фио которых есть совпадения с 'аша'."""
     # Валидация доступа
-    await validators.check_role(user)
+    validators.check_supervisor_role(user)
     # Поиск сотрудников
     employees = await user_crud.get_all(
         session, attrs={"supervisor_id": user.id}

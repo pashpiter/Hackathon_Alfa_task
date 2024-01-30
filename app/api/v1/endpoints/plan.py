@@ -86,6 +86,7 @@ async def update_plan(
     new_plan = await plan_crud.update(
         session,
         {"id": plan_id},
-        plan_update.model_dump(exclude_unset=True)
+        plan_update.model_dump(exclude_unset=True),
+        unique=True
     )
     return new_plan[0]
