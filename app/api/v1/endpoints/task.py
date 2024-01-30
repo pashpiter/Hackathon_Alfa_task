@@ -17,11 +17,11 @@ from services.user import User, get_user
 
 logger = logger_factory(__name__)
 
-router = APIRouter(prefix="/plans/{plan_id}/tasks")
+router = APIRouter(prefix="")
 
 
 @router.get(
-    "/{task_id}",
+    "/tasks/{task_id}",
     response_model=TaskReadWithComments,
     **openapi.task.get_task.model_dump()
 )
@@ -53,7 +53,7 @@ async def get_task(
 
 
 @router.get(
-    "/",
+    "/plans/{plan_id}/tasks",
     response_model=list[TaskRead],
     **openapi.task.get_tasks.model_dump()
 )
@@ -68,7 +68,7 @@ async def get_tasks(
 
 
 @router.post(
-    "/",
+    "/plans/{plan_id}/tasks",
     response_model=TaskRead,
     **openapi.task.create_task.model_dump()
 )
@@ -104,7 +104,7 @@ async def create_task(
 
 
 @router.patch(
-    "/{task_id}",
+    "/tasks/{task_id}",
     response_model=Union[TaskRead, list[TaskRead]],
     **openapi.task.update_task.model_dump()
 )
@@ -129,7 +129,7 @@ async def update_task(
 
 
 @router.delete(
-    "/{task_id}",
+    "/tasks/{task_id}",
     status_code=HTTPStatus.NO_CONTENT,
     **openapi.task.delete_task.model_dump()
 )
