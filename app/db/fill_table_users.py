@@ -1,6 +1,6 @@
 import asyncio
 from sqlalchemy import select, func
-from db.database import async_engine, async_session_factory
+from db.database import async_session_factory
 from schemas.user import User
 
 bearer_tokens = [
@@ -45,7 +45,6 @@ positions = [
 ]
 supervisors_ids = [10, 10, 10, 11, 11, 11, 11, 11, 11, None, None]
 
-engine = async_engine
 async_session = async_session_factory
 
 
@@ -58,15 +57,15 @@ async def get_max_user_id_in_db():
         return max_id
 
 
-def get_all_test_users(max_user_id_value):
-    all_users = []
+def create_users_list(max_id):
+    users = []
     i = 0
-    for m in range(max_user_id_value + 1, max_user_id_value + 12):
+    for m in range(max_id + 1, max_id + 12):
         if supervisors_ids[i]:
-            supervisor_id = supervisors_ids[i] + max_user_id_value
+            supervisor_id = supervisors_ids[i] + max_id
         else:
             supervisor_id = None
-        all_users.append({
+        users.append({
             "id": m,
             "full_name": full_names[i],
             "position": positions[i],
@@ -74,21 +73,20 @@ def get_all_test_users(max_user_id_value):
             "supervisor_id": supervisor_id
         })
         i += 1
-    return all_users
+    return users
 
 
-async def add_user(usr_data: dict):
+async def add_users(users_data: list[dict]):
     async with async_session() as session:
-        new_user = User(**usr_data)
-        session.add(new_user)
+        new_users = [User(**usr_data) for usr_data in users_data]
+        session.add_all(new_users)
         await session.commit()
 
 
 async def main():
     max_user_id = await get_max_user_id_in_db()
-    all_users = get_all_test_users(max_user_id)
-    for item in all_users:
-        await add_user(item)
+    users = create_users_list(max_user_id)
+    await add_users(users)
 
 
 asyncio.run(main())
