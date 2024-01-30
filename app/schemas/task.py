@@ -6,11 +6,12 @@ from typing import List, Optional
 from core.config import settings
 from core.utils import date_today
 from fastapi import HTTPException
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from sqlmodel import Column, Date, Field, Relationship, SQLModel, text
 
 from schemas.base import PK_TYPE
 from schemas.comment import CommentRead, Comment
+from schemas.plan import Plan
 
 
 class TaskStatus(str, enum.Enum):
@@ -47,9 +48,13 @@ class Task(TaskBase, table=True):
     plan_id: Optional[PK_TYPE] = Field(foreign_key="plan.id")
 
     comments: List["Comment"] = Relationship(
-        back_populates="task",
         sa_relationship_kwargs={
             "cascade": "all, delete",
+            "lazy": "joined"
+        }
+    )
+    plan: Optional[Plan] = Relationship(
+        sa_relationship_kwargs={
             "lazy": "joined"
         }
     )
@@ -57,6 +62,7 @@ class Task(TaskBase, table=True):
 
 class TaskCreate(TaskBase):
     created_at: Optional[date] = date_today()
+    expires_at: Optional[date] = None
 
     @field_validator("expires_at", mode="before")
     def validate_date(cls, d: object) -> object:
@@ -78,6 +84,13 @@ class TaskCreate(TaskBase):
 class TaskRead(TaskBase):
     id: PK_TYPE
 
+    @model_validator(mode="before")
+    def editing_expires_at(cls, data: Task) -> Task:
+        """Добавление даты дедлайна из Плана, если дедлайна у задачи нет"""
+        if not data.expires_at:
+            data.expires_at = data.plan.expires_at
+        return data
+
 
 class TaskReadWithComments(TaskRead):
     comments: List[CommentRead] | None = []
@@ -90,7 +103,7 @@ class TaskUpdate(SQLModel):
     expires_at: Optional[date] = None
 
     @field_validator("expires_at", mode="before")
-    def validate_date(cls, d: object) -> object:
+    def validate_date(cls, d: Optional[date]) -> date | None:
         if d is None:
             return
         if isinstance(d, str):
