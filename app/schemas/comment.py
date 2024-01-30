@@ -56,7 +56,6 @@ class Comment(CommentBase, table=True):
         )
     )
 
-    task: Optional["Task"] = Relationship(back_populates="comments")
     author: User = Relationship(sa_relationship_kwargs={"lazy": "joined"})
 
 
