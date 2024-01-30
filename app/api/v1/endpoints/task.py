@@ -64,7 +64,7 @@ async def get_tasks(
 ):
     """Получение списка задач."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
-    return await task_crud.get_all(session, {"plan_id": plan_id})
+    return await task_crud.get_all_tasks(session, {"plan_id": plan_id,})
 
 
 @router.post(
@@ -81,9 +81,10 @@ async def create_task(
     """Создание задачи. Добавление нового нового комментарияк задаче."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
     await validators.check_role(user)
-    await validators.check_plan_tasks_expired_date(
-        session, plan_id, task_create.expires_at
-    )
+    if task_create.expires_at:
+        await validators.check_plan_tasks_expired_date(
+            session, plan_id, task_create.expires_at
+        )
     task = await task_crud.create(
         session, {
         **task_create.model_dump(),
