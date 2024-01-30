@@ -26,7 +26,6 @@ router = APIRouter(prefix="")
     **openapi.task.get_task.model_dump()
 )
 async def get_task(
-        plan_id: PK_TYPE,
         task_id: PK_TYPE,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
@@ -46,7 +45,7 @@ async def get_task(
         )
         await plan_crud.update(
             session,
-            {"id": plan_id},
+            {"id": task.plan_id},
             {"status": PlanStatus.IN_PROGRESS}
         )
     return task
@@ -109,14 +108,13 @@ async def create_task(
     **openapi.task.update_task.model_dump()
 )
 async def update_task(
-        plan_id: PK_TYPE,
         task_id: PK_TYPE,
         task_patch: TaskUpdate,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление задачи."""
-    await validators.check_plan_and_user_access(plan_id, user.id, session)
+    await validators.check_plan_and_user_access(task_id, user.id, session)
     await validators.check_role(user)
     new_task = await task_crud.update(
         session,
@@ -134,12 +132,11 @@ async def update_task(
     **openapi.task.delete_task.model_dump()
 )
 async def delete_task(
-        plan_id: PK_TYPE,
         task_id: PK_TYPE,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Удаление задачи."""
-    await validators.check_plan_and_user_access(plan_id, user.id, session)
+    await validators.check_plan_and_user_access(task_id, user.id, session)
     await validators.check_role(user)
     await task_crud.delete(session, {"id": task_id})

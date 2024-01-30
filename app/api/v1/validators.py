@@ -36,19 +36,22 @@ async def check_task_and_user_access(
 
 
 async def check_plan_and_user_access(
-        plan_id: PK_TYPE,
+        task_id: PK_TYPE,
         user_id: USER_PK_TYPE,
         session: AsyncSession
 ) -> None:
     """Проверяет наличие ИПР и права доступа пользователя. Доступ к
     ИПР есть у сотрудника, прикрепленного к плану и у руководителя
     сотрудника."""
-    plan = await plan_crud.get(session, {"id": plan_id})
-    if plan is None:
-        raise NotFoundException(PLAN_NOT_FOUND.format(plan_id))
+    task = await task_crud.get(session, {"id": task_id})
+    if task is None:
+        raise NotFoundException(TASK_NOT_FOUND.format(task_id))
+
+    plan = await plan_crud.get(session, {"id": task.plan_id})
 
     if user_id == plan.employee_id:
         return
+
     employee = await user_crud.get(session, {"id": plan.employee_id})
 
     if user_id != employee.supervisor_id:
