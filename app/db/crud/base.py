@@ -52,7 +52,7 @@ class CRUDBase:
         db_objs = await session.execute(
             self._make_query(attrs, limit=limit, offset=offset, sort=sort)
         )
-        return db_objs.scalars().all()
+        return db_objs.unique().scalars().all()
 
     async def create(
             self,

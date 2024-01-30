@@ -1,7 +1,5 @@
 # flake8: noqa: E501
-from datetime import datetime, timedelta
-
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 
 from api.v1 import openapi, validators
@@ -29,7 +27,7 @@ async def get_plan(
 ):
     """Получение ИПР по id."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
-    return await plan_crud.get(session, {"id": "plan_id"})
+    return await plan_crud.get(session, {"id": plan_id})
 
 
 @router.get(
@@ -38,8 +36,9 @@ async def get_plan(
     **openapi.plan.get_plans.model_dump()
 )
 async def get_plans(
+        request: Request,
         user: User = Depends(get_user),
-        session: AsyncSession = Depends(get_async_session),
+        session: AsyncSession = Depends(get_async_session)
 ):
     """Получение списка ИПР.
     Руководитель получает все ИПР своих сотрудников.
@@ -47,7 +46,7 @@ async def get_plans(
     """
     if user.supervisor_id:
         plan = await plan_crud.get_latest(session, user.id)
-        return RedirectResponse(f"/{plan.id}")
+        return RedirectResponse(f"{request.url._url}{plan.id}")
     return await plan_crud.get_employees(session, user.id)
 
 
@@ -62,11 +61,12 @@ async def create_plan(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создание ИПР."""
-    await validators.check_role(user)
-    plan_data = plan_create.model_dump
-    if not plan_data.get("expires_at"):
-        plan_data["expires_at"] = datetime.now() + timedelta(month=6)
-    plan = await plan_crud.create(session, plan_data)
+    validators.check_supervisor_role(user)
+    await validators.check_employee_related_supervisor(
+        user.id, plan_create.employee_id, session
+    )
+    await validators.check_no_active_plan(plan_create.employee_id, session)
+    return await plan_crud.create(session, plan_create.model_dump())
 
 
 @router.patch(
@@ -81,7 +81,8 @@ async def update_plan(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление ИПР."""
-    await validators.check_role(user)
+    validators.check_supervisor_role(user)
+    await validators.check_plan_and_user_access(plan_id, user.id, session)
     new_plan = await plan_crud.update(
         session,
         {"id": plan_id},

@@ -51,7 +51,7 @@ class Task(TaskBase, table=True):
     comments: Comment = Relationship(
         sa_relationship_kwargs={"cascade": "all, delete", "lazy": "joined"}
     )
-    plan: Optional["Plan"] = Relationship(back_populates="tasks")
+    plan: "Plan" = Relationship(back_populates="tasks")
 
 
 class TaskCreate(TaskBase):

@@ -80,7 +80,7 @@ async def create_task(
 ):
     """Создание задачи. Добавление нового нового комментарияк задаче."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
-    await validators.check_role(user)
+    validators.check_supervisor_role(user)
     await validators.check_plan_tasks_expired_date(
         session, plan_id, task_create.expires_at
     )
@@ -116,7 +116,7 @@ async def update_task(
 ):
     """Обновление задачи."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
-    await validators.check_role(user)
+    validators.check_supervisor_role(user)
     new_task = await task_crud.update(
         session,
         {"id": task_id},
@@ -140,5 +140,5 @@ async def delete_task(
 ):
     """Удаление задачи."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
-    await validators.check_role(user)
+    validators.check_supervisor_role(user)
     await task_crud.delete(session, {"id": task_id})

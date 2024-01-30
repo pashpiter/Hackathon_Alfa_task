@@ -1,7 +1,8 @@
-import enum
 from datetime import datetime, timedelta, date
+from dateutil.relativedelta import relativedelta
+import enum
 from http import HTTPStatus
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import HTTPException
 from pydantic import field_validator
@@ -11,7 +12,7 @@ from core.config import settings
 from core.utils import date_today
 from schemas.base import PK_TYPE, USER_PK_TYPE
 from schemas.task import Task, TaskRead
-from schemas.user import User
+from schemas.user import User, UserRead
 
 
 class PlanStatus(str, enum.Enum):
@@ -23,7 +24,6 @@ class PlanStatus(str, enum.Enum):
 
 class PlanBase(SQLModel):
     aim_description: str
-    employee_id: USER_PK_TYPE = Field(foreign_key="user.id")
     expires_at: Optional[date] = Field(
         sa_column=Column(
             Date,
@@ -36,6 +36,7 @@ class Plan(PlanBase, table=True):
     __table_args__ = {"schema": settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
+    employee_id: USER_PK_TYPE = Field(foreign_key='user.id')
     status: PlanStatus = Field(default=PlanStatus.CREATED)
     created_at: Optional[date] = Field(
         sa_column=Column(
@@ -45,14 +46,14 @@ class Plan(PlanBase, table=True):
         )
     )
 
-    tasks: list["Task"] = Relationship(
+    tasks: List["Task"] = Relationship(
         back_populates="plan",
         sa_relationship_kwargs={
             "cascade": "all, delete",
             "lazy": "joined"
         }
     )
-    employee: Optional[User] = Relationship(
+    employee: User = Relationship(
         back_populates="plan",
         sa_relationship_kwargs={
             "cascade": "all, delete",
@@ -62,7 +63,8 @@ class Plan(PlanBase, table=True):
 
 
 class PlanCreate(PlanBase):
-    created_at: date
+    employee_id: int
+    expires_at: Optional[date] = date_today() + relativedelta(months=6)
 
     @field_validator("expires_at", mode="before")
     def validate_date(cls, d: object) -> object:
@@ -83,13 +85,13 @@ class PlanCreate(PlanBase):
 
 class PlanRead(PlanBase):
     id: PK_TYPE
-    employee_id: User
     status: PlanStatus
     created_at: date
+    employee: UserRead
 
 
 class PlanReadWithTasks(PlanRead):
-    tasks: list[TaskRead] = []
+    tasks: List[TaskRead] = []
 
 
 class PlanUpdate(SQLModel):

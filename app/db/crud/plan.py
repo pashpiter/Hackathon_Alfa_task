@@ -39,7 +39,7 @@ class CRUDPlan(CRUDBase):
         sub_query = select(User.id).where(User.supervisor_id == supervisor_id)
         query = select(Plan).where(Plan.employee_id.in_(sub_query))
         plans = await session.execute(query)
-        return plans.scalars().all()
+        return plans.unique().scalars().all()
 
 
 plan_crud = CRUDPlan(model=Plan, logger=logger_factory(__name__))
