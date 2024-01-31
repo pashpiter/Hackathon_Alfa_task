@@ -41,6 +41,7 @@ class CRUDBase:
             limit: int | None = None,
             offset: int | None = None,
             sort: str | None = None,
+            unique: bool = False
     ) -> Sequence[ModelType]:
         """Возвращает список элементов, удовлетворяющих условию поиска в attrs.
         Например:
@@ -52,6 +53,8 @@ class CRUDBase:
         db_objs = await session.execute(
             self._make_query(attrs, limit=limit, offset=offset, sort=sort)
         )
+        if unique:
+            db_objs = db_objs.unique()
         return db_objs.scalars().all()
 
     async def create(
@@ -80,6 +83,7 @@ class CRUDBase:
             session: AsyncSession,
             attrs: dict[str, Any],
             obj_in: dict[str, Any],
+            unique: bool = False
     ) -> Sequence[ModelType]:
         """Обновляет все записи в БД, соответствующие условию поиска в
         attrs. Словарь obj_in содержит обновляемые поля и их значения."""
@@ -92,7 +96,7 @@ class CRUDBase:
             self.logger.error(msg)
             raise ValueError(msg)
 
-        db_objs = await self.get_all(session, attrs)
+        db_objs = await self.get_all(session, attrs, unique=unique)
 
         for db_obj in db_objs:
             for field in obj_in:
