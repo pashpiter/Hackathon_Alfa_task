@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  db:
+  postgres:
     image: postgres:${POSTGRES_VERSION}
     container_name: plans-postgres
     hostname: ${POSTGRES_HOST}
@@ -14,6 +14,35 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - env/postgres
+
+  nginx:
+    image: nginx:${NGINX_VERSION}
+    container_name: plans-nginx
+    hostname: ${NGINX_HOST}
+    restart: on-failure
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    expose:
+      - ${SERVER_PORT}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    env_file:
+      - env/general
+
+  fastapi:
+    build: ../app
+    container_name: plans-fastapi
+    hostname: ${FASTAPI_HOST}
+    restart: on-failure
+    expose:
+      - ${FASTAPI_PORT}
+    env_file:
+      - env/general
+      - env/fastapi
+      - env/postgres
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:

@@ -27,6 +27,7 @@ class Notification(NotificationBase, table=True):
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
     recipient_id: USER_PK_TYPE
+    task_id: PK_TYPE = Field(foreign_key='task.id')
     created_at: Optional[datetime] = Field(
         default=None,
         sa_column=Column(
@@ -39,4 +40,5 @@ class Notification(NotificationBase, table=True):
 
 class NotificationRead(NotificationBase):
     id: PK_TYPE
+    task_id: PK_TYPE
     created_at: datetime
