@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from pydantic import Field
@@ -24,9 +23,9 @@ STATIC_DIR: Path = BASE_DIR / STATIC
 
 class AppSettings(BaseSettings):
     def __init__(self):
-        os.makedirs(LOG_DIR, exist_ok=True)
-        os.makedirs(ATTACHMENT_DIR, exist_ok=True)
-        os.makedirs(STATIC_DIR, exist_ok=True)
+        LOG_DIR.mkdir(exist_ok=True)
+        ATTACHMENT_DIR.mkdir(exist_ok=True)
+        STATIC_DIR.mkdir(exist_ok=True)
         super().__init__()
     name: str = Field('ИПР для сотрудников Альфа-Банка', alias='APP_NAME')
     debug: bool = Field(False, alias='DEBUG')
