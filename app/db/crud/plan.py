@@ -46,4 +46,4 @@ class CRUDPlan(CRUDBase):
         return plans.unique().scalars().all()
 
 
-plan_crud = CRUDPlan(model=Plan, logger=logger_factory(__name__))
+plan_crud = CRUDPlan(Plan, logger_factory(__name__))
