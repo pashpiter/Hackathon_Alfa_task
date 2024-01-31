@@ -10,8 +10,6 @@ from core.config import settings
 from schemas.base import PK_TYPE, USER_PK_TYPE
 from schemas.user import User, UserRead
 
-if TYPE_CHECKING:
-    from .task import Task
 # Разделитель, используемый при записи ссылки в БД. В самой БД хранится в виде:
 # <текст ссылки><РАЗДЕЛИТЕЛЬ><url ссылки>
 SEPARATOR = '$'

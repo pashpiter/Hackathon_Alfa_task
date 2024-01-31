@@ -63,7 +63,9 @@ async def get_tasks(
 ):
     """Получение списка задач."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
-    return await task_crud.get_all_tasks(session, {"plan_id": plan_id,})
+    return await task_crud.get_all(
+        session, {"plan_id": plan_id,}, unique=True
+    )
 
 
 @router.post(

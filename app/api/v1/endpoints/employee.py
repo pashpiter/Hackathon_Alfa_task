@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 
 from api.v1 import openapi, validators
 from core.logger import logger_factory
-from core.exceptions import NotFoundException
 from db.database import AsyncSession, get_async_session
 from schemas.base import USER_PK_TYPE
 from schemas.user import User, UserRead, UserReadWithSupervisor
@@ -29,18 +28,10 @@ async def get_employee(
     await validators.check_role(user)
     # Проверка существования сотрудника
     employee = await user_crud.get(session, {"id": employee_id})
-    if not employee:
-        raise NotFoundException("Сотрудник не найден")
-    supervisor = await user_crud.get(
-        session,
-        {"id": employee.supervisor_id}
-    ) if employee.supervisor_id else None
-    return UserReadWithSupervisor(
-        id=employee.id,
-        full_name=employee.full_name,
-        position=employee.position,
-        supervisor=supervisor
+    await validators.check_employee_related_supervisor(
+        user.id, employee_id, session
     )
+    return employee
 
 
 @router.get(

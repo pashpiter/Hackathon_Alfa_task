@@ -13,6 +13,9 @@ ACCESS_DENIED = ("Можно смотреть только комментари�
                  "ИПР подчинённых")
 ACCESS_EMPLOYEE_DENIED = "Доступ доступен только для руководителя"
 PLAN_DATE_LS_TASK = "Срок задачи {} не может быть больше срока ИПР {}"
+USER_NOT_FOUND = "Пользователя с id={} не существует."
+BANNED_SUPERVISOR_PLAN = "Руководителю нельзя назначить ИПР."
+NOT_RELATED_EMPLOYEE = "Этот сотрудник относится к другому руководителю."
 
 
 async def check_task_and_user_access(
@@ -78,3 +81,20 @@ async def check_plan_tasks_expired_date(
         raise IncorrectDate(PLAN_DATE_LS_TASK.format(
             date_in_task, plan.expires_at
         ))
+
+
+async def check_employee_related_supervisor(
+        supervisor_id: USER_PK_TYPE,
+        employee_id: USER_PK_TYPE,
+        session: AsyncSession
+) -> None:
+    employee = await user_crud.get(session, {"id": employee_id})
+
+    if employee is None:
+        raise NotFoundException(USER_NOT_FOUND.format(employee_id))
+
+    if not employee.supervisor_id:
+        raise ForbiddenException(BANNED_SUPERVISOR_PLAN)
+
+    if employee.supervisor_id != supervisor_id:
+        raise ForbiddenException(NOT_RELATED_EMPLOYEE)

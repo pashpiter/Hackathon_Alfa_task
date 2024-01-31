@@ -41,6 +41,7 @@ class CRUDBase:
             limit: int | None = None,
             offset: int | None = None,
             sort: str | None = None,
+            unique: bool = False,
     ) -> Sequence[ModelType]:
         """Возвращает список элементов, удовлетворяющих условию поиска в attrs.
         Например:
@@ -52,6 +53,8 @@ class CRUDBase:
         db_objs = await session.execute(
             self._make_query(attrs, limit=limit, offset=offset, sort=sort)
         )
+        if unique:
+            db_objs = db_objs.unique()
         return db_objs.scalars().all()
 
     async def create(
