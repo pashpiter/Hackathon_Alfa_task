@@ -50,30 +50,27 @@ async_session = async_session_factory
 
 async def get_max_user_id_in_db():
     async with async_session() as session:
-        result = await session.execute(select(func.max(User.id)))
-        max_id = result.scalar()
-        if not max_id:
-            return 0
-        return max_id
+        max_id = await session.execute(select(func.max(User.id)))
+        value = max_id.scalar()
+        return value if value else 0
 
 
 def create_users_list(max_id):
-    users = []
-    i = 0
-    for m in range(max_id + 1, max_id + 12):
-        if supervisors_ids[i]:
-            supervisor_id = supervisors_ids[i] + max_id
-        else:
-            supervisor_id = None
-        users.append({
-            "id": m,
-            "full_name": full_names[i],
-            "position": positions[i],
-            "token": bearer_tokens[i],
-            "supervisor_id": supervisor_id
-        })
-        i += 1
-    return users
+    return [{
+        "id": m,
+        "full_name": fn,
+        "position": p,
+        "token": bt,
+        "supervisor_id": si + max_id if si else None
+    }
+        for m, fn, p, bt, si in zip(
+            range(max_id + 1, max_id + 12),
+            full_names,
+            positions,
+            bearer_tokens,
+            supervisors_ids
+        )
+    ]
 
 
 async def add_users(users_data: list[dict]):
