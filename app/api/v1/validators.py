@@ -60,7 +60,7 @@ async def check_plan_and_user_access(
         raise ForbiddenException(ACCESS_DENIED)
 
 
-def check_supervisor_role(
+async def check_role(
         user: User
 ) -> None:
     """Проверка права доступа к эндпоинту.

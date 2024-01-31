@@ -61,7 +61,7 @@ async def create_plan(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создание ИПР."""
-    validators.check_supervisor_role(user)
+    await validators.check_role(user)
     await validators.check_employee_related_supervisor(
         user.id, plan_create.employee_id, session
     )
@@ -81,7 +81,7 @@ async def update_plan(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление ИПР."""
-    validators.check_supervisor_role(user)
+    await validators.check_role(user)
     await validators.check_plan_and_user_access(plan_id, user.id, session)
     new_plan = await plan_crud.update(
         session,

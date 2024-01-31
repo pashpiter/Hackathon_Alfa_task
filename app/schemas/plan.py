@@ -1,16 +1,13 @@
-from datetime import datetime, timedelta, date
+from datetime import date
 from dateutil.relativedelta import relativedelta
 import enum
-from http import HTTPStatus
 from typing import List, Optional
 
-from fastapi import HTTPException
-from pydantic import field_validator
 from sqlmodel import Column, Date, Field, Relationship, SQLModel, text
 
 from core.config import settings
 from core.utils import date_today
-from schemas.base import PK_TYPE, USER_PK_TYPE
+from schemas.base import EXPIRES_DATE_TYPE, PK_TYPE, USER_PK_TYPE
 from schemas.task import Task, TaskRead
 from schemas.user import User, UserRead
 
@@ -57,23 +54,8 @@ class Plan(PlanBase, table=True):
 
 class PlanCreate(PlanBase):
     employee_id: int
-    expires_at: Optional[date] = date_today() + relativedelta(months=6)
-
-    @field_validator("expires_at", mode="before")
-    def validate_date(cls, d: object) -> object:
-        if isinstance(d, str):
-            d = datetime.strptime(d, "%d.%m.%Y").date()
-        if d < date_today():
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN,
-                detail="Нельзя установить дату в прошлом"
-            )
-        elif d - date_today() < timedelta(days=1):
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN,
-                detail="Дата окончания не может быть меньше одного дня"
-            )
-        return d
+    expires_at: Optional[EXPIRES_DATE_TYPE] = \
+        date_today() + relativedelta(months=6)
 
 
 class PlanRead(PlanBase):
@@ -84,8 +66,9 @@ class PlanRead(PlanBase):
 
 
 class PlanReadWithTasks(PlanRead):
-    tasks: List[TaskRead] = []
+    tasks: List[TaskRead] | None = []
 
 
 class PlanUpdate(SQLModel):
-    aim_description: str
+    aim_description: Optional[str] = None
+    expires_at: Optional[EXPIRES_DATE_TYPE] = None
