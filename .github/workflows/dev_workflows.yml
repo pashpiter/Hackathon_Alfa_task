@@ -27,7 +27,7 @@ jobs:
         with:
           context: app
           push: true
-          tags: alfa/plans-fastapi:latest
+          tags: askerot/plans-fastapi:latest
 
   deploy:
       name: Deploy to the remote server
@@ -44,7 +44,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            sudo docker pull alfa/plans-fastapi:latest
+            sudo docker pull askerot/plans-fastapi:latest
             cd ~/infra
             sudo docker compose --env-file=env/.general down
             sudo docker compose --env-file=env/.general up -d
