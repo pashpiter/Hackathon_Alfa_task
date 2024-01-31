@@ -46,6 +46,6 @@ jobs:
           script: |
             sudo docker pull askerot/plans-fastapi:latest
             cd ~/infra
-            sudo docker compose --env-file=env/.general down
-            sudo docker compose --env-file=env/.general up -d
+            sudo docker compose --env-file=env/general down
+            sudo docker compose --env-file=env/general up -d
             sudo docker image prune -f
