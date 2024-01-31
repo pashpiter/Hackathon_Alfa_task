@@ -10,6 +10,7 @@ app = FastAPI(
     title=settings.app.name,
     docs_url='/api/v1/openapi',
     openapi_url='/api/v1/openapi.json',
+    redoc_url='/api/v1/redoc',
     default_response_class=ORJSONResponse,
 )
 
