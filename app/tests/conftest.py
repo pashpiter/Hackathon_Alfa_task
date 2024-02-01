@@ -6,13 +6,13 @@ client = TestClient(app)
 
 
 def pytest_sessionstart():
-    # Выполняйте ваш код здесь
-    print("Запуск скрипта в начале тестирования")
+    """Запуск скрипта в начале тестирования"""
+    pass
 
 
 def pytest_sessionfinish():
-    # Выполняйте ваш код здесь
-    print("\nЗапуск скрипта в конце тестирования")
+    """Запуск скрипта в конце тестирования"""
+    pass
 
 
 @pytest.fixture(scope="session")
