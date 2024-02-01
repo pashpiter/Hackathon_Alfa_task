@@ -14,6 +14,7 @@ from schemas.user import User, UserRead
 # <текст ссылки><РАЗДЕЛИТЕЛЬ><url ссылки>
 SEPARATOR = '$'
 
+WRONG_CONTENT = 'Допустим только текст'
 WRONG_LINK_CONTENT = ('Для создания комментария типа link, необходимо '
                       'передать объект Link')
 
@@ -69,7 +70,7 @@ class CommentRead(CommentBase):
     @classmethod
     def convert_content(
             cls,
-            content: str | Link,
+            content: str,
             validation_info: ValidationInfo
     ) -> str | Link:
         """При необходимости конвертирует текстовое представления ссылки в
@@ -93,4 +94,7 @@ class CommentCreate(CommentBase):
             if isinstance(content, str):
                 raise ValueError(WRONG_LINK_CONTENT)
             content = content.to_str()
+        else:
+            if not isinstance(content, str):
+                raise ValueError(WRONG_CONTENT)
         return content
