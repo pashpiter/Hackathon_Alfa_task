@@ -13,7 +13,8 @@ from schemas.comment import CommentType
 from schemas.plan import PlanStatus
 from schemas.task import (TaskCreate, TaskRead, TaskReadWithComments,
                           TaskStatus, TaskUpdate)
-from services.user import User, get_user
+from services.user import User, get_user, PermissionChecker
+from core.config import Permissions
 
 logger = logger_factory(__name__)
 
@@ -75,7 +76,7 @@ async def get_tasks(
 async def create_task(
         plan_id: PK_TYPE,
         task_create: TaskCreate,
-        user: User = Depends(get_user),
+        user: User = Depends(PermissionChecker([Permissions.EMPLOYEE])),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создание задачи. Добавление нового нового комментарияк задаче."""

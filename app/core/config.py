@@ -1,3 +1,4 @@
+import enum
 import os
 from pathlib import Path
 
@@ -61,3 +62,8 @@ class Settings:
 
 
 settings = Settings()
+
+
+class Permissions(str, enum.Enum):
+    SUPERVISOR = 'supervisor'
+    EMPLOYEE = 'employee'
