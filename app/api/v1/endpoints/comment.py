@@ -1,4 +1,3 @@
-# flake8: noqa: E501
 from http import HTTPStatus
 
 import aiofiles
@@ -7,7 +6,7 @@ from fastapi import APIRouter, Depends, UploadFile
 from api.v1 import openapi, validators
 from core.config import ATTACHMENT, ATTACHMENT_DIR, STATIC
 from core.logger import logger_factory
-from core.utils import create_mock_file
+from core.utils import create_empty_file
 from db.crud import comment_crud, unread_comment_crud
 from db.database import AsyncSession, get_async_session
 from schemas.base import PK_TYPE
@@ -31,9 +30,14 @@ async def get_comments(
 ):
     """Получение списка комментариев."""
     await validators.check_task_and_user_access(task_id, user.id, session)
+
+    # сбрасываем счётчик непрочитанных комментариев у пользователя
+    await unread_comment_crud.delete(
+        session, {'reader_id': user.id, 'task_id': task_id}
+    )
+
     return await comment_crud.get_all(
         session,
-        user,
         {'task_id': task_id},
         sort='created_at desc'
     )
@@ -54,10 +58,17 @@ async def create_comment(
     task = await validators.check_task_and_user_access(
         task_id, user.id, session
     )
+
+    # увеличиваем счётчик непрочитанных комментариев у всех пользователей,
+    # имеющих доступ к комментариям (за исключением автора комментария)
+    await unread_comment_crud.increase_counter(
+        session,
+        task_id,
+        [user.supervisor_id if user.supervisor_id else task.plan.employee_id]
+    )
+
     await comment_crud.create(
         session,
-        user,
-        task,
         {
             **comment.model_dump(),
             'task_id': task_id,
@@ -81,7 +92,7 @@ async def upload_file(
     await validators.check_task_and_user_access(task_id, user.id, session)
 
     task_directory = ATTACHMENT_DIR / f'task_{task_id}'
-    filename = create_mock_file(task_directory, file.filename)
+    filename = create_empty_file(task_directory, file.filename)
     filepath = task_directory / filename
 
     async with aiofiles.open(filepath, 'wb') as out_file:
