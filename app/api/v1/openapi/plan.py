@@ -2,24 +2,30 @@ from api.v1.openapi.base import BaseOpenapi
 
 get_plan = BaseOpenapi(
     summary='Получить ИПР',
-    description='',
-    response_description=''
+    description='Получение ИПР с задачами по ID. Доступ есть у сотрудника, '
+                'корторому принадлежит ИПР, и у его руководителя.',
+    response_description='Индивидуальный план развития.'
 )
 
 get_plans = BaseOpenapi(
     summary='Получить список ИПР',
-    description='',
-    response_description=''
+    description='Получение списка ИПР сотрудников, доступно для '
+                'руководителя. Если ИПР запрашивает сотрудник, то его '
+                'перенаправит на собственный последний ИПР.',
+    response_description='Список планов развития сотрудников.'
 )
 
 create_plan = BaseOpenapi(
     summary='Создать ИПР',
-    description='',
-    response_description=''
+    description='Создание нового ИПР. Создать ИПР может только руководитель '
+                'и только своему сотруднику.',
+    response_description='Созданный план развития.'
 )
 
 update_plan = BaseOpenapi(
     summary='Обновить ИПР',
-    description='',
-    response_description=''
+    description='Изменение существующешго ИПР. Создать ИПР может только '
+                'руководитель и только своему сотруднику. Можно изменить '
+                'цель ИПР или увеличить срок его действия.',
+    response_description='Изменённый план развития.'
 )

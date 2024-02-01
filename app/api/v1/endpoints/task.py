@@ -116,7 +116,7 @@ async def update_task(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление задачи."""
-    await validators.check_plan_and_user_access(task_id, user.id, session)
+    await validators.check_task_and_user_access(task_id, user.id, session)
     await validators.check_role(user)
     new_task = await task_crud.update(
         session,
@@ -138,6 +138,6 @@ async def delete_task(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Удаление задачи."""
-    await validators.check_plan_and_user_access(task_id, user.id, session)
+    await validators.check_task_and_user_access(task_id, user.id, session)
     await validators.check_role(user)
     await task_crud.delete(session, {"id": task_id})

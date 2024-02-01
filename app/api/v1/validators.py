@@ -18,6 +18,7 @@ PLAN_DATE_LS_TASK = "Срок задачи {} не может быть боль�
 BANNED_SUPERVISOR_PLAN = "Руководителю нельзя назначить ИПР."
 NOT_RELATED_EMPLOYEE = "Этот сотрудник относится к другому руководителю."
 ACTIVE_PLAN_EXISTS = "У сотрудника в настоящий момент уже есть ИПР."
+BANNED_DATE_REDUCE = "Нельзя уменьшить дату окончания ИПР."
 
 
 async def check_task_and_user_access(
@@ -33,26 +34,21 @@ async def check_task_and_user_access(
     if task is None:
         raise NotFoundException(TASK_NOT_FOUND.format(task_id))
 
-    plan = await plan_crud.get(session, {'id': task.plan_id})
-    employee = await user_crud.get(session, {'id': plan.employee_id})
-
-    if user_id not in [employee.id, employee.supervisor_id]:
-        raise ForbiddenException(ACCESS_DENIED)
+    await check_plan_and_user_access(task.plan_id, user_id, session)
 
 
 async def check_plan_and_user_access(
-        task_id: PK_TYPE,
+        plan_id: PK_TYPE,
         user_id: USER_PK_TYPE,
         session: AsyncSession
 ) -> None:
     """Проверяет наличие ИПР и права доступа пользователя. Доступ к
     ИПР есть у сотрудника, прикрепленного к плану и у руководителя
     сотрудника."""
-    task = await task_crud.get(session, {"id": task_id})
-    if task is None:
-        raise NotFoundException(TASK_NOT_FOUND.format(task_id))
+    plan = await plan_crud.get(session, {"id": plan_id})
 
-    plan = await plan_crud.get(session, {"id": task.plan_id})
+    if plan is None:
+        raise NotFoundException(PLAN_NOT_FOUND.format(plan_id))
 
     if user_id == plan.employee_id:
         return
@@ -83,6 +79,16 @@ async def check_plan_tasks_expired_date(
         raise IncorrectDate(PLAN_DATE_LS_TASK.format(
             date_in_task, plan.expires_at
         ))
+
+
+async def check_new_date_gt_current(
+        plan_id: PK_TYPE,
+        new_expires_date: date,
+        session: AsyncSession
+) -> None:
+    plan = await plan_crud.get(session, {"id": plan_id})
+    if new_expires_date < plan.expires_at:
+        raise IncorrectDate(BANNED_DATE_REDUCE)
 
 
 async def check_employee_related_supervisor(
