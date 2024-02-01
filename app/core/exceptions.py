@@ -1,6 +1,4 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional
-from typing_extensions import Annotated, Doc
 
 from fastapi import HTTPException
 
@@ -16,5 +14,10 @@ class ForbiddenException(HTTPException):
 
 
 class IncorrectDate(HTTPException):
-    def __init__(self, message: str):   
+    def __init__(self, message: str):
         super().__init__(HTTPStatus.FORBIDDEN, message)
+
+
+class AlreadyExists(HTTPException):
+    def __init__(self, message: str):
+        super().__init__(HTTPStatus.CONFLICT, message)

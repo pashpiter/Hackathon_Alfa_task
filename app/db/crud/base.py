@@ -41,7 +41,7 @@ class CRUDBase:
             limit: int | None = None,
             offset: int | None = None,
             sort: str | None = None,
-            unique: bool = False,
+            unique: bool = False
     ) -> Sequence[ModelType]:
         """Возвращает список элементов, удовлетворяющих условию поиска в attrs.
         Например:

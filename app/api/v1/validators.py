@@ -1,21 +1,23 @@
 from datetime import date
 
 from core.exceptions import (ForbiddenException, IncorrectDate,
-                             NotFoundException)
+                             NotFoundException, AlreadyExists)
 from db.crud import plan_crud, task_crud, user_crud
 from db.database import AsyncSession
 from schemas.base import PK_TYPE, USER_PK_TYPE
+from schemas.plan import PlanStatus
 from schemas.user import User
 
-TASK_NOT_FOUND = "Задачи с id={} не существует"
-PLAN_NOT_FOUND = "Плана с id={} не существует"
-ACCESS_DENIED = ("Можно смотреть только комментарии к задачам своего ИПР или "
-                 "ИПР подчинённых")
-ACCESS_EMPLOYEE_DENIED = "Доступ доступен только для руководителя"
-PLAN_DATE_LS_TASK = "Срок задачи {} не может быть больше срока ИПР {}"
+TASK_NOT_FOUND = "Задачи с id={} не существует."
+PLAN_NOT_FOUND = "Плана с id={} не существует."
 USER_NOT_FOUND = "Пользователя с id={} не существует."
+ACCESS_DENIED = ("Можно смотреть только комментарии к задачам своего ИПР или "
+                 "ИПР подчинённых.")
+ACCESS_EMPLOYEE_DENIED = "Доступ доступен только для руководителя."
+PLAN_DATE_LS_TASK = "Срок задачи {} не может быть больше срока ИПР {}."
 BANNED_SUPERVISOR_PLAN = "Руководителю нельзя назначить ИПР."
 NOT_RELATED_EMPLOYEE = "Этот сотрудник относится к другому руководителю."
+ACTIVE_PLAN_EXISTS = "У сотрудника в настоящий момент уже есть ИПР."
 
 
 async def check_task_and_user_access(
@@ -98,3 +100,18 @@ async def check_employee_related_supervisor(
 
     if employee.supervisor_id != supervisor_id:
         raise ForbiddenException(NOT_RELATED_EMPLOYEE)
+
+
+async def check_no_active_plan(
+        employee_id: USER_PK_TYPE,
+        session: AsyncSession
+) -> None:
+    plans = await plan_crud.get_all(
+        session,
+        {"employee_id": employee_id},
+        unique=True
+    )
+    if any(plan.status in (
+        PlanStatus.CREATED, PlanStatus.IN_PROGRESS
+    ) for plan in plans):
+        raise AlreadyExists(ACTIVE_PLAN_EXISTS)
