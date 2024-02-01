@@ -16,16 +16,9 @@ app = FastAPI(
 
 app.include_router(v1_router)
 
-origins = [
-    "https://praktikum.tk",
-    "http://praktikum.tk",
-    "http://localhost:5173",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=['*'],
     allow_methods=["*"],
     allow_headers=["*"],
 )
