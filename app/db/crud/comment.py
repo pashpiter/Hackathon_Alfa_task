@@ -62,7 +62,7 @@ class CRUDComment(CRUDBase):
 
 
 class CRUDUnreadComment(CRUDBase):
-    async def get_unread_amount(
+    async def get_amount(
             self,
             session: AsyncSession,
             user: User

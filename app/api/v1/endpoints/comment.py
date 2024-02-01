@@ -101,4 +101,4 @@ async def get_unread_comments_amount(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Получение количества непрочитанных комментариев."""
-    return await unread_comment_crud.get_unread_amount(session, user)
+    return await unread_comment_crud.get_amount(session, user)
