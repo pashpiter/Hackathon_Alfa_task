@@ -44,7 +44,6 @@ positions = [
     "Финансовый директор"
 ]
 supervisors_ids = [10, 10, 10, 11, 11, 11, 11, 11, 11, None, None]
-
 async_session = async_session_factory
 
 
@@ -80,10 +79,33 @@ async def add_users(users_data: list[dict]):
         await session.commit()
 
 
-async def main():
+async def create_users():
     max_user_id = await get_max_user_id_in_db()
     users = create_users_list(max_user_id)
     await add_users(users)
 
 
-asyncio.run(main())
+async def delete_user(user_id: int):
+    async with async_session() as session:
+        user = await session.get(User, user_id)
+        if user:
+            await session.delete(user)
+            await session.commit()
+
+
+async def delete_users(users: list[int] | int):
+    if isinstance(users, list):  # Список id юзеров
+        [await delete_user(user_id) for user_id in users]
+    elif isinstance(users, int):  # Количество последних юзеров, которых удалять
+        max_id = await get_max_user_id_in_db()
+        [await delete_user(max_id - item) for item in range(users)]
+    else:
+        raise TypeError("Юзеры должны быть list[int] или int")
+
+
+async def main():
+    await create_users()
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
