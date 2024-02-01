@@ -1,15 +1,19 @@
+# flake8: noqa: VNE003
 import enum
-from datetime import datetime, date
-from typing import List, Optional
+from datetime import date
+from typing import List, Optional, TYPE_CHECKING
 
 from core.config import settings
 from core.utils import date_today
-from pydantic import field_validator, model_validator
+from pydantic import model_validator
 from sqlmodel import Column, Date, Field, Relationship, SQLModel, text
 
 from schemas.base import PK_TYPE, EXPIRES_DATE_TYPE
-from schemas.comment import CommentRead, Comment
-from schemas.plan import Plan
+from schemas.comment import CommentRead
+
+if TYPE_CHECKING:
+    from schemas.comment import Comment
+    from schemas.plan import Plan
 
 
 class TaskStatus(str, enum.Enum):
@@ -51,7 +55,7 @@ class Task(TaskBase, table=True):
             "lazy": "joined"
         }
     )
-    plan: Optional[Plan] = Relationship(
+    plan: Optional["Plan"] = Relationship(
         sa_relationship_kwargs={
             "lazy": "joined"
         }
