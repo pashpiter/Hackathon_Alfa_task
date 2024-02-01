@@ -4,6 +4,11 @@ server {
 
     root /data;
 
+    location ~ /static/ {
+        root /var/html/;
+        autoindex off;
+    }
+
     location /api/ {
         proxy_pass http://${FASTAPI_HOST}:${FASTAPI_PORT}/api/;
     }
