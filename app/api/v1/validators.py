@@ -1,12 +1,12 @@
 from datetime import date
 
-from core.exceptions import (ForbiddenException, IncorrectDate,
-                             NotFoundException, AlreadyExists)
+from core.exceptions import (AlreadyExists, ForbiddenException, IncorrectDate,
+                             NotFoundException)
 from db.crud import plan_crud, task_crud, user_crud
 from db.database import AsyncSession
+from schemas import Task, User
 from schemas.base import PK_TYPE, USER_PK_TYPE
 from schemas.plan import PlanStatus
-from schemas.user import User
 
 TASK_NOT_FOUND = "Задачи с id={} не существует."
 PLAN_NOT_FOUND = "Плана с id={} не существует."
@@ -24,7 +24,7 @@ async def check_task_and_user_access(
         task_id: PK_TYPE,
         user_id: USER_PK_TYPE,
         session: AsyncSession
-) -> None:
+) -> Task:
     """Проверяет наличие задачи и права доступа пользователя к ИПР. Доступ к
     ИПР есть у сотрудника, к чьему ИПР проверяется наличие доступа, и у
     руководителя сотрудника."""
@@ -38,6 +38,8 @@ async def check_task_and_user_access(
 
     if user_id not in [employee.id, employee.supervisor_id]:
         raise ForbiddenException(ACCESS_DENIED)
+
+    return task
 
 
 async def check_plan_and_user_access(

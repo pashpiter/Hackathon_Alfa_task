@@ -32,9 +32,8 @@ async def get_task(
 ):
     """Получение задачи по id. Проверка и изменение статуса задачи и
     статуса плна"""
-    await validators.check_task_and_user_access(task_id, user.id, session)
-    task = await task_crud.get(
-        session, {"id": task_id}
+    task = await validators.check_task_and_user_access(
+        task_id, user.id, session
     )
     # Проверка статуса задачи и изменение статуса задачи и статуса плана
     if task.status == TaskStatus.CREATED and user.supervisor_id:

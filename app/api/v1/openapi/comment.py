@@ -22,3 +22,10 @@ upload_file = BaseOpenapi(
                  'либо его начальник.'),
     response_description='Путь к загруженному файлу.'
 )
+
+get_unread_comments_amount = BaseOpenapi(
+    summary='Получить количество непрочитанных комментариев.',
+    description=('Возвращает количество непрочитанных комментариев для '
+                 'заданного сотрудника.'),
+    response_description='Количество непрочитанных комментариев'
+)
