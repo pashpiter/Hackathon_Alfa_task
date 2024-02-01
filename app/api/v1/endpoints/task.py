@@ -17,16 +17,15 @@ from services.user import User, get_user
 
 logger = logger_factory(__name__)
 
-router = APIRouter(prefix="/plans/{plan_id}/tasks")
+router = APIRouter(prefix="")
 
 
 @router.get(
-    "/{task_id}",
+    "/tasks/{task_id}",
     response_model=TaskReadWithComments,
     **openapi.task.get_task.model_dump()
 )
 async def get_task(
-        plan_id: PK_TYPE,
         task_id: PK_TYPE,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
@@ -46,14 +45,14 @@ async def get_task(
         )
         await plan_crud.update(
             session,
-            {"id": plan_id},
+            {"id": task.plan_id},
             {"status": PlanStatus.IN_PROGRESS}
         )
     return task
 
 
 @router.get(
-    "/",
+    "/plans/{plan_id}/tasks",
     response_model=list[TaskRead],
     **openapi.task.get_tasks.model_dump()
 )
@@ -64,11 +63,13 @@ async def get_tasks(
 ):
     """Получение списка задач."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
-    return await task_crud.get_all(session, {"plan_id": plan_id})
+    return await task_crud.get_all(
+        session, {"plan_id": plan_id,}, unique=True
+    )
 
 
 @router.post(
-    "/",
+    "/plans/{plan_id}/tasks",
     response_model=TaskRead,
     **openapi.task.create_task.model_dump()
 )
@@ -81,9 +82,10 @@ async def create_task(
     """Создание задачи. Добавление нового нового комментарияк задаче."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
     await validators.check_role(user)
-    await validators.check_plan_tasks_expired_date(
-        session, plan_id, task_create.expires_at
-    )
+    if task_create.expires_at:
+        await validators.check_plan_tasks_expired_date(
+            session, plan_id, task_create.expires_at
+        )
     task = await task_crud.create(
         session, {
         **task_create.model_dump(),
@@ -103,42 +105,39 @@ async def create_task(
 
 
 @router.patch(
-    "/{task_id}",
+    "/tasks/{task_id}",
     response_model=Union[TaskRead, list[TaskRead]],
     **openapi.task.update_task.model_dump()
 )
 async def update_task(
-        plan_id: PK_TYPE,
         task_id: PK_TYPE,
         task_patch: TaskUpdate,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление задачи."""
-    await validators.check_plan_and_user_access(plan_id, user.id, session)
+    await validators.check_plan_and_user_access(task_id, user.id, session)
     await validators.check_role(user)
     new_task = await task_crud.update(
         session,
         {"id": task_id},
-        task_patch.model_dump(exclude_unset=True)
+        task_patch.model_dump(exclude_unset=True),
+        unique=True
     )
-    if len(new_task) > 1:
-        return new_task
     return new_task[0]
 
 
 @router.delete(
-    "/{task_id}",
+    "/tasks/{task_id}",
     status_code=HTTPStatus.NO_CONTENT,
     **openapi.task.delete_task.model_dump()
 )
 async def delete_task(
-        plan_id: PK_TYPE,
         task_id: PK_TYPE,
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Удаление задачи."""
-    await validators.check_plan_and_user_access(plan_id, user.id, session)
+    await validators.check_plan_and_user_access(task_id, user.id, session)
     await validators.check_role(user)
     await task_crud.delete(session, {"id": task_id})

@@ -7,7 +7,7 @@ from db.database import AsyncSession, get_async_session
 from schemas.user import User
 
 MISSING_TOKEN = 'В заголовке http запроса отсутствует Bearer токен'
-USER_NOT_FOUND = 'Пользователь не найден'
+USER_NOT_FOUND = 'Пользователь с данным токеном не найден'
 
 
 async def get_user(

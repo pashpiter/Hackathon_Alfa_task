@@ -29,18 +29,10 @@ async def get_employee(
     await validators.check_role(user)
     # Проверка существования сотрудника
     employee = await user_crud.get(session, {"id": employee_id})
-    if not employee:
-        raise NotFoundException("Сотрудник не найден")
-    supervisor = await user_crud.get(
-        session,
-        {"id": employee.supervisor_id}
-    ) if employee.supervisor_id else None
-    return UserReadWithSupervisor(
-        id=employee.id,
-        full_name=employee.full_name,
-        position=employee.position,
-        supervisor=supervisor
+    await validators.check_employee_related_supervisor(
+        user.id, employee_id, session
     )
+    return employee
 
 
 @router.get(

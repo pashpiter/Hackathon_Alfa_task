@@ -1,7 +1,7 @@
 # flake8: noqa: VNE003
 import enum
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from pydantic import BaseModel, HttpUrl, model_validator
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, text
