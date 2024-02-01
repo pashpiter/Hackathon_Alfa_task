@@ -121,10 +121,9 @@ async def update_task(
     new_task = await task_crud.update(
         session,
         {"id": task_id},
-        task_patch.model_dump(exclude_unset=True)
+        task_patch.model_dump(exclude_unset=True),
+        unique=True
     )
-    if len(new_task) > 1:
-        return new_task
     return new_task[0]
 
 

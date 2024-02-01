@@ -1,15 +1,13 @@
 import enum
-from datetime import datetime, timedelta, date
-from http import HTTPStatus
+from datetime import datetime, date
 from typing import List, Optional
 
 from core.config import settings
 from core.utils import date_today
-from fastapi import HTTPException
 from pydantic import field_validator, model_validator
 from sqlmodel import Column, Date, Field, Relationship, SQLModel, text
 
-from schemas.base import PK_TYPE
+from schemas.base import PK_TYPE, EXPIRES_DATE_TYPE
 from schemas.comment import CommentRead, Comment
 from schemas.plan import Plan
 
@@ -62,23 +60,7 @@ class Task(TaskBase, table=True):
 
 class TaskCreate(TaskBase):
     created_at: Optional[date] = date_today()
-    expires_at: Optional[date] = None
-
-    @field_validator("expires_at", mode="before")
-    def validate_date(cls, d: object) -> object:
-        if isinstance(d, str):
-            d = datetime.strptime(d, "%d.%m.%Y").date()
-        if d < date_today():
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN,
-                detail="Нельзя установить дату в прошлом"
-            )
-        elif d - date_today() < timedelta(days=1):
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN,
-                detail="Дата окончания не может быть меньше одного дня"
-            )
-        return d
+    expires_at: Optional[EXPIRES_DATE_TYPE] = None
 
 
 class TaskRead(TaskBase):
@@ -87,7 +69,7 @@ class TaskRead(TaskBase):
     @model_validator(mode="before")
     def editing_expires_at(cls, data: Task) -> Task:
         """Добавление даты дедлайна из Плана, если дедлайна у задачи нет"""
-        if not data.expires_at:
+        if isinstance(data, Task) and not data.expires_at:
             data.expires_at = data.plan.expires_at
         return data
 
@@ -100,12 +82,4 @@ class TaskUpdate(SQLModel):
     name: Optional[str] = None
     description: Optional[str] = None
     status: Optional[TaskStatus] = None
-    expires_at: Optional[date] = None
-
-    @field_validator("expires_at", mode="before")
-    def validate_date(cls, d: Optional[date]) -> date | None:
-        if d is None:
-            return
-        if isinstance(d, str):
-            d = datetime.strptime(d, "%d.%m.%Y").date()
-        return d
+    expires_at: Optional[EXPIRES_DATE_TYPE] = None
