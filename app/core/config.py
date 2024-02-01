@@ -3,29 +3,24 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
-"""
-Базовые классы настроек, по необходимости можно расширять.
-DEBUG можно использовать для разнообразной логики, например:
-в db/database.py при создании движка - выводить/не выводить запросы в консоль.
-"""
-
 BASE_DIR: Path = Path(__file__).parent.parent
 
-LOG: str = 'logs'
-LOG_DIR: Path = BASE_DIR / LOG
+LOG_DIR: Path = BASE_DIR / 'logs'
+STATIC_DIR: Path = BASE_DIR / 'static'
 
-ATTACHMENT: str = 'attachments'
-ATTACHMENT_DIR: Path = BASE_DIR / ATTACHMENT
+ATTACHMENT: str = 'attachment'
+ATTACHMENT_DIR: Path = STATIC_DIR / ATTACHMENT
 
-STATIC: str = 'static'
-STATIC_DIR: Path = BASE_DIR / STATIC
+PHOTO: str = 'photo'
+PHOTO_DIR: Path = STATIC_DIR / PHOTO
 
 
 class AppSettings(BaseSettings):
     def __init__(self):
         LOG_DIR.mkdir(exist_ok=True)
-        ATTACHMENT_DIR.mkdir(exist_ok=True)
         STATIC_DIR.mkdir(exist_ok=True)
+        ATTACHMENT_DIR.mkdir(exist_ok=True)
+        PHOTO_DIR.mkdir(exist_ok=True)
         super().__init__()
     name: str = Field('ИПР для сотрудников Альфа-Банка', alias='APP_NAME')
     debug: bool = Field(False, alias='DEBUG')
