@@ -76,12 +76,12 @@ async def get_tasks(
 async def create_task(
         plan_id: PK_TYPE,
         task_create: TaskCreate,
-        user: User = Depends(PermissionChecker([Permissions.EMPLOYEE])),
+        user: User = Depends(PermissionChecker([Permissions.SUPERVISOR])),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создание задачи. Добавление нового нового комментарияк задаче."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
-    await validators.check_role(user)
+    # await validators.check_role(user)
     await validators.check_plan_tasks_expired_date(
         session, plan_id, task_create.expires_at
     )
