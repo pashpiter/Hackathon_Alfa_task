@@ -5,7 +5,7 @@ import aiofiles
 from fastapi import APIRouter, Depends, UploadFile
 
 from api.v1 import openapi, validators
-from core.config import ATTACHMENT, ATTACHMENT_DIR
+from core.config import ATTACHMENT, ATTACHMENT_DIR, STATIC
 from core.logger import logger_factory
 from core.utils import create_mock_file
 from db.crud import comment_crud
@@ -83,4 +83,4 @@ async def upload_file(
         content = await file.read()
         await out_file.write(content)
 
-    return f'{ATTACHMENT}/task_{task_id}/{filename}'
+    return f'{STATIC}/{ATTACHMENT}/task_{task_id}/{filename}'

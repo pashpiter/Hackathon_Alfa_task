@@ -1,9 +1,9 @@
 # flake8: noqa: VNE003
 import enum
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
-from pydantic import BaseModel, HttpUrl, model_validator
+from pydantic import BaseModel, HttpUrl, field_validator, ValidationInfo
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, text
 
 from core.config import settings
@@ -13,6 +13,10 @@ from schemas.user import User, UserRead
 # Разделитель, используемый при записи ссылки в БД. В самой БД хранится в виде:
 # <текст ссылки><РАЗДЕЛИТЕЛЬ><url ссылки>
 SEPARATOR = '$'
+
+WRONG_CONTENT = 'Допустим только текст'
+WRONG_LINK_CONTENT = ('Для создания комментария типа link, необходимо '
+                      'передать объект Link')
 
 
 class CommentType(str, enum.Enum):
@@ -62,18 +66,35 @@ class CommentRead(CommentBase):
     author: UserRead
     created_at: datetime
 
-    @model_validator(mode="after")
-    def convert_content(self) -> 'CommentRead':
-        """Конвертирует текстовое представления ссылки в объект Link."""
-        if self.type == CommentType.LINK:
-            self.content = Link.from_str(*self.content.split(SEPARATOR))
-        return self
+    @field_validator('content')
+    @classmethod
+    def convert_content(
+            cls,
+            content: str,
+            validation_info: ValidationInfo
+    ) -> str | Link:
+        """При необходимости конвертирует текстовое представления ссылки в
+        объект Link."""
+        if validation_info.data['type'] == CommentType.LINK:
+            content = Link.from_str(*content.split(SEPARATOR))
+        return content
 
 
 class CommentCreate(CommentBase):
-    @model_validator(mode="after")
-    def convert_content(self) -> 'CommentCreate':
-        """Конвертирует объект Link в текстовое представление."""
-        if self.type == CommentType.LINK and isinstance(self.content, Link):
-            self.content = self.content.to_str()
-        return self
+    @field_validator('content')
+    @classmethod
+    def convert_content(
+            cls,
+            content: str | Link,
+            validation_info: ValidationInfo
+    ) -> str | Link:
+        """При необходимости конвертирует объект Link в текстовое
+        представление."""
+        if validation_info.data['type'] == CommentType.LINK:
+            if isinstance(content, str):
+                raise ValueError(WRONG_LINK_CONTENT)
+            content = content.to_str()
+        else:
+            if not isinstance(content, str):
+                raise ValueError(WRONG_CONTENT)
+        return content
