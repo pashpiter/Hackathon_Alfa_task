@@ -27,7 +27,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-      - plans_static_data:/data/
+      - plans_static_data:/data/static/
     env_file:
       - env/general
 

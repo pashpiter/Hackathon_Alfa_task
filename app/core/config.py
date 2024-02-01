@@ -5,8 +5,11 @@ from pydantic_settings import BaseSettings
 
 BASE_DIR: Path = Path(__file__).parent.parent
 
-LOG_DIR: Path = BASE_DIR / 'logs'
-STATIC_DIR: Path = BASE_DIR / 'static'
+LOG: str = 'logs'
+LOG_DIR: Path = BASE_DIR / LOG
+
+STATIC: str = 'static'
+STATIC_DIR: Path = BASE_DIR / STATIC
 
 ATTACHMENT: str = 'attachment'
 ATTACHMENT_DIR: Path = STATIC_DIR / ATTACHMENT
