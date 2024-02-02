@@ -10,8 +10,8 @@ MIDNIGHT = datetime.strptime("00:00:00", "%H:%M:%S")
 async def check_plans() -> None:
     """Проверка планов на истекший дедлайн. В случае если дедлайн прошел
     и план находится в статусе CREATED или IN_PROGRESS, статус плана изменяется
-    на FAILD. После этого все статусы задач CREATED и IN_PROGRESS в изменных
-    планах изменяются на FAILD"""
+    на FAILED. После этого все статусы задач CREATED и IN_PROGRESS в изменных
+    планах изменяются на FAILED"""
 
     async with async_session_factory() as session:
         sql = """WITH updated_plans AS(
@@ -29,7 +29,6 @@ async def check_plans() -> None:
                 SELECT * FROM updated_plans;"""
         await session.execute(text(sql))
         await session.commit()
-        print(5555)
 
 
 async def check_tasks() -> None:
@@ -40,8 +39,7 @@ async def check_tasks() -> None:
     async with async_session_factory() as session:
         sql = """UPDATE plans.task SET status = 'FAILED'
                     WHERE plans.task.status IN ('CREATED', 'IN_PROGRESS') AND
-                        plans.task.expires_at < NOW()
-                    RETURNING plans.task.id;"""
+                        plans.task.expires_at < NOW();"""
         await session.execute(text(sql))
         await session.commit()
 

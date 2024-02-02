@@ -7,7 +7,7 @@ from db.database import AsyncSession
 from schemas.base import PK_TYPE, USER_PK_TYPE
 from schemas.plan import PlanStatus, Plan
 from schemas.user import User
-from schemas.task import Task, TaskStatus
+from schemas.task import Task
 
 TASK_NOT_FOUND = "Задачи с id={} не существует."
 PLAN_NOT_FOUND = "Плана с id={} не существует."
@@ -20,7 +20,6 @@ BANNED_SUPERVISOR_PLAN = "Руководителю нельзя назначит
 NOT_RELATED_EMPLOYEE = "Этот сотрудник относится к другому руководителю."
 ACTIVE_PLAN_EXISTS = "У сотрудника в настоящий момент уже есть ИПР."
 BANNED_DATE_REDUCE = "Нельзя уменьшить дату окончания ИПР."
-SAME_INPUT_STATUS = "Старый статус задачи совпадает с новым статусом"
 
 
 async def check_task_and_user_access(
@@ -91,22 +90,10 @@ async def check_plan_tasks_expired_date(
 
 
 async def check_new_date_gt_current(
-        plan_id: PK_TYPE,
-        new_expires_date: date,
-        session: AsyncSession
+        element: Plan | Task,
+        new_expires_date: date
 ) -> None:
-    plan = await plan_crud.get(session, {"id": plan_id})
-    if new_expires_date < plan.expires_at:
-        raise IncorrectDate(BANNED_DATE_REDUCE)
-
-
-async def check_task_new_date_gt_current(
-        task: Task,
-        new_expires_date: date,
-        session: AsyncSession
-) -> None:
-    """Проверка вводимой даты при изменении задачи."""
-    if new_expires_date < task.expires_at:
+    if new_expires_date < element.expires_at:
         raise IncorrectDate(BANNED_DATE_REDUCE)
 
 
@@ -140,11 +127,3 @@ async def check_no_active_plan(
         PlanStatus.CREATED, PlanStatus.IN_PROGRESS
     ) for plan in plans):
         raise AlreadyExists(ACTIVE_PLAN_EXISTS)
-
-
-async def check_task_input_same_status(
-        old_status: TaskStatus,
-        new_status: TaskStatus
-) -> None:
-    if old_status == new_status:
-        raise AlreadyExists(SAME_INPUT_STATUS)

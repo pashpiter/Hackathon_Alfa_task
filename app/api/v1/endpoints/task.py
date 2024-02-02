@@ -122,9 +122,6 @@ async def update_task(
         task_id, user.id, session
     )
     await validators.check_role(user)
-    await validators.check_task_input_same_status(
-        task.status, task_patch.status
-    )
     if task_patch.expires_at:
         await validators.check_task_new_date_gt_current(
             task, task_patch.expires_at, session
@@ -135,16 +132,16 @@ async def update_task(
         task_patch.model_dump(exclude_unset=True),
         unique=True
     )
-    # Проверка что все задачи имею статус DONE
-    tasks_not_done = await task_crud.get_all(
-        session,
-        {"plan_id": task.plan_id},
-        unique=True)
-    # Изменение статуса плана на DONE, если все задачи DONE
-    if tasks_not_done.count(lambda x: x.status != TaskStatus.DONE):
-        plan_crud.update(
-            session, {"id": task.plan_id}, {"status": PlanStatus.DONE}
-        )
+    if task_patch.status == TaskStatus.DONE:
+        # Проверка что все задачи имею статус DONE и изменение статуса плана
+        tasks_not_done = await task_crud.get_all(
+            session,
+            {"plan_id": task.plan_id},
+            unique=True)
+        if tasks_not_done.count(lambda x: x.status != TaskStatus.DONE):
+            plan_crud.update(
+                session, {"id": task.plan_id}, {"status": PlanStatus.DONE}
+            )
     return new_task[0]
 
 
