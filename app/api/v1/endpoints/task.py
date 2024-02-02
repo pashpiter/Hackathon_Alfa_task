@@ -62,7 +62,7 @@ async def get_tasks(
     """Получение списка задач."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
     return await task_crud.get_all(
-        session, {"plan_id": plan_id,}, unique=True
+        session, {"plan_id": plan_id}, unique=True
     )
 
 
@@ -78,7 +78,9 @@ async def create_task(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создание задачи. Добавление нового нового комментарияк задаче."""
-    plan = await validators.check_plan_and_user_access(plan_id, user.id, session)
+    plan = await validators.check_plan_and_user_access(
+        plan_id, user.id, session
+    )
     await validators.check_role(user)
     if task_create.expires_at:
         await validators.check_plan_tasks_expired_date(
@@ -86,8 +88,8 @@ async def create_task(
         )
     task = await task_crud.create(
         session, {
-        **task_create.model_dump(),
-        "plan_id": plan_id
+            **task_create.model_dump(),
+            "plan_id": plan_id
         }
     )
     # Добавление комментария с датой создания

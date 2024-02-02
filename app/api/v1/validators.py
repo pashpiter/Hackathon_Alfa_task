@@ -5,10 +5,9 @@ from core.exceptions import (AlreadyExists, ForbiddenException, IncorrectDate,
 from db.crud import plan_crud, task_crud, user_crud
 from db.database import AsyncSession
 from schemas.base import PK_TYPE, USER_PK_TYPE
-from schemas.plan import PlanStatus, Plan
+from schemas.plan import Plan, PlanStatus
 from schemas.task import Task
 from schemas.user import User
-
 
 TASK_NOT_FOUND = "Задачи с id={} не существует."
 PLAN_NOT_FOUND = "Плана с id={} не существует."

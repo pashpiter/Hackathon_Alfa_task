@@ -1,8 +1,10 @@
 import asyncio
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from fastapi.responses import ORJSONResponse
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import ORJSONResponse
+
 from api.v1.routers import v1_router
 from core.config import settings
 from services import daily_status_check

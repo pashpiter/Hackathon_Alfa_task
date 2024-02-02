@@ -1,7 +1,9 @@
 import asyncio
 from datetime import datetime
-from db.database import async_session_factory
+
 from sqlalchemy import text
+
+from db.database import async_session_factory
 
 MIDNIGHT = datetime.strptime("00:00:00", "%H:%M:%S")
 
