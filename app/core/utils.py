@@ -38,14 +38,12 @@ def create_empty_file(
     пока не найдётся свободное имя."""
     directory.mkdir(exist_ok=True)
     file = File(filename)
-    i = 1
     while True:
         try:
             Path.touch(directory / str(file), exist_ok=False)
             break
         except FileExistsError:
             file.increase_version()
-            i += 1
 
     return str(file)
 

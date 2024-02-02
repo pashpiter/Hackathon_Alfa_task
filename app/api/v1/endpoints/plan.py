@@ -25,8 +25,9 @@ async def get_plan(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Получение ИПР по id."""
-    await validators.check_plan_and_user_access(plan_id, user.id, session)
-    return await plan_crud.get(session, {"id": plan_id})
+    return await validators.check_plan_and_user_access(
+        plan_id, user.id, session
+    )
 
 
 @router.get(
@@ -81,7 +82,13 @@ async def update_plan(
 ):
     """Обновление ИПР."""
     await validators.check_role(user)
-    await validators.check_plan_and_user_access(plan_id, user.id, session)
+    plan = await validators.check_plan_and_user_access(
+        plan_id, user.id, session
+    )
+    if plan_update.expires_at:
+        await validators.check_new_date_gt_current(
+            plan, plan_update.expires_at
+        )
     new_plan = await plan_crud.update(
         session,
         {"id": plan_id},
