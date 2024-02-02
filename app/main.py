@@ -1,7 +1,8 @@
+import asyncio
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.responses import ORJSONResponse
-import asyncio
+from fastapi.middleware.cors import CORSMiddleware
 from api.v1.routers import v1_router
 from core.config import settings
 from services import daily_status_check
@@ -23,3 +24,10 @@ app = FastAPI(
 )
 
 app.include_router(v1_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
