@@ -123,8 +123,8 @@ async def update_task(
     )
     await validators.check_role(user)
     if task_patch.expires_at:
-        await validators.check_task_new_date_gt_current(
-            task, task_patch.expires_at, session
+        await validators.check_new_date_gt_current(
+            task, task_patch.expires_at
         )
     new_task = await task_crud.update(
         session,

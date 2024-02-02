@@ -1,5 +1,4 @@
 import asyncio
-import aiocron
 from datetime import datetime
 from db.database import async_session_factory
 from sqlalchemy import text
@@ -46,8 +45,10 @@ async def check_tasks() -> None:
 
 async def main():
     """Программа ждет до полуночи и запускает проверку статусов"""
-    aiocron.crontab("0 0 * * *", check_plans)
-    aiocron.crontab("0 0 * * *", check_tasks)
+    while True:
+        await check_plans()
+        await check_tasks()
+        await asyncio.sleep((datetime.now() - MIDNIGHT).total_seconds())
 
 if __name__ == "__main__":
     asyncio.run(main())
