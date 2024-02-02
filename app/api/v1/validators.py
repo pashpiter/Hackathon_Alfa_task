@@ -86,11 +86,9 @@ async def check_plan_tasks_expired_date(
 
 
 async def check_new_date_gt_current(
-        plan_id: PK_TYPE,
+        plan: Plan,
         new_expires_date: date,
-        session: AsyncSession
 ) -> None:
-    plan = await plan_crud.get(session, {"id": plan_id})
     if new_expires_date < plan.expires_at:
         raise IncorrectDate(BANNED_DATE_REDUCE)
 

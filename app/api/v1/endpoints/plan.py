@@ -82,12 +82,12 @@ async def update_plan(
 ):
     """Обновление ИПР."""
     await validators.check_role(user)
-    await validators.check_plan_and_user_access(plan_id, user.id, session)
+    plan = await validators.check_plan_and_user_access(
+        plan_id, user.id, session
+    )
     if plan_update.expires_at:
         await validators.check_new_date_gt_current(
-            plan_id,
-            plan_update.expires_at,
-            session
+            plan, plan_update.expires_at
         )
     new_plan = await plan_crud.update(
         session,
