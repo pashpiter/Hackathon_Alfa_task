@@ -26,8 +26,9 @@ async def get_plan(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Получение ИПР по id."""
-    await validators.check_plan_and_user_access(plan_id, user.id, session)
-    return await plan_crud.get(session, {"id": plan_id})
+    return await validators.check_plan_and_user_access(
+        plan_id, user.id, session
+    )
 
 
 @router.get(

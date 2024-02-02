@@ -5,7 +5,8 @@ from core.exceptions import (ForbiddenException, IncorrectDate,
 from db.crud import plan_crud, task_crud, user_crud
 from db.database import AsyncSession
 from schemas.base import PK_TYPE, USER_PK_TYPE
-from schemas.plan import PlanStatus
+from schemas.plan import PlanStatus, Plan
+from schemas.task import Task
 from schemas.user import User
 
 TASK_NOT_FOUND = "Задачи с id={} не существует."
@@ -25,7 +26,7 @@ async def check_task_and_user_access(
         task_id: PK_TYPE,
         user_id: USER_PK_TYPE,
         session: AsyncSession
-) -> None:
+) -> Task:
     """Проверяет наличие задачи и права доступа пользователя к ИПР. Доступ к
     ИПР есть у сотрудника, к чьему ИПР проверяется наличие доступа, и у
     руководителя сотрудника."""
@@ -34,14 +35,17 @@ async def check_task_and_user_access(
     if task is None:
         raise NotFoundException(TASK_NOT_FOUND.format(task_id))
 
-    await check_plan_and_user_access(task.plan_id, user_id, session)
+    if user_id in (task.plan.employee_id, task.plan.employee.supervisor_id):
+        return task
+
+    raise ForbiddenException(ACCESS_DENIED)
 
 
 async def check_plan_and_user_access(
         plan_id: PK_TYPE,
         user_id: USER_PK_TYPE,
         session: AsyncSession
-) -> None:
+) -> Plan:
     """Проверяет наличие ИПР и права доступа пользователя. Доступ к
     ИПР есть у сотрудника, прикрепленного к плану и у руководителя
     сотрудника."""
@@ -50,13 +54,10 @@ async def check_plan_and_user_access(
     if plan is None:
         raise NotFoundException(PLAN_NOT_FOUND.format(plan_id))
 
-    if user_id == plan.employee_id:
-        return
+    if user_id in (plan.employee_id, plan.employee.supervisor_id):
+        return plan
 
-    employee = await user_crud.get(session, {"id": plan.employee_id})
-
-    if user_id != employee.supervisor_id:
-        raise ForbiddenException(ACCESS_DENIED)
+    raise ForbiddenException(ACCESS_DENIED)
 
 
 async def check_role(
