@@ -105,7 +105,7 @@ async def upload_file(
 @router.get(
     "/comments/unread",
     response_model=int,
-    **openapi.comment.get_comments.model_dump()
+    **openapi.comment.get_unread_comments_amount.model_dump()
 )
 async def get_unread_comments_amount(
         user: User = Depends(get_user),
