@@ -7,7 +7,7 @@ class File:
     extension: str = ''
     _version: int = 0
 
-    EMPTY_NAME_ERROR = 'Имя не может быть пустым'
+    EMPTY_NAME_ERROR = 'Имя файла не может быть пустым'
 
     def __init__(self, filename: str):
         if not filename:
@@ -29,23 +29,21 @@ class File:
         self._version += 1
 
 
-def create_mock_file(
+def create_empty_file(
         directory: Path,
         filename: str
 ) -> str:
-    """Создаёт файл в директории directory с именем filename. Если такой файл
-    уже существует, добавляет к имени цифру в скобках до тех пор, пока не
-    найдётся свободное имя."""
+    """Создаёт пустой файл в директории directory с именем filename. Если
+    такой файл уже существует, добавляет к имени цифру в скобках до тех пор,
+    пока не найдётся свободное имя."""
     directory.mkdir(exist_ok=True)
     file = File(filename)
-    i = 1
     while True:
         try:
             Path.touch(directory / str(file), exist_ok=False)
             break
         except FileExistsError:
             file.increase_version()
-            i += 1
 
     return str(file)
 

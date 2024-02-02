@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Sequence
 
-from sqlalchemy import and_, select, text
+from sqlalchemy import and_, delete, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 ModelType = Any
@@ -111,17 +111,20 @@ class CRUDBase:
             self,
             session: AsyncSession,
             attrs: dict[str, Any]
-    ) -> Sequence[ModelType]:
+    ) -> None:
         """Удаляет элементы, соответствующие условию поиска в attrs."""
         self.logger.debug(f'DELETE: model={self.model}, attrs={attrs}')
 
-        db_objs = await self.get_all(session, attrs)
-
-        for db_obj in db_objs:
-            await session.delete(db_obj)
-
+        query = delete(self.model).where(
+            and_(
+                *(
+                    getattr(self.model, key).__eq__(value)
+                    for key, value in attrs.items()
+                )
+            )
+        )
+        await session.execute(query)
         await session.commit()
-        return db_objs
 
     def _make_query(
             self,
@@ -134,7 +137,7 @@ class CRUDBase:
         query = select(self.model)
 
         if attrs:
-            query = select(self.model).where(
+            query = query.where(
                 and_(
                     *(
                         getattr(self.model, key).__eq__(value)

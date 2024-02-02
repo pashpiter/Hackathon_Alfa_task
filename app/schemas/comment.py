@@ -98,3 +98,11 @@ class CommentCreate(CommentBase):
             if not isinstance(content, str):
                 raise ValueError(WRONG_CONTENT)
         return content
+
+
+class UnreadComment(SQLModel, table=True):
+    __table_args__ = {'schema': settings.postgres.db_schema}
+
+    reader_id: USER_PK_TYPE = Field(primary_key=True, foreign_key='user.id')
+    task_id: PK_TYPE = Field(primary_key=True, foreign_key='task.id')
+    amount: int

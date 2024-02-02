@@ -1,4 +1,3 @@
-# flake8: noqa: E501
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, Query
