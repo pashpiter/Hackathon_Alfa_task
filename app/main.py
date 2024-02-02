@@ -1,10 +1,20 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from fastapi.responses import ORJSONResponse
-
+import asyncio
 from api.v1.routers import v1_router
 from core.config import settings
+from services import daily_status_check
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(daily_status_check.main())
+    yield
+    task.cancel()
 
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.app.name,
     docs_url='/api/v1/openapi',
     openapi_url='/api/v1/openapi.json',

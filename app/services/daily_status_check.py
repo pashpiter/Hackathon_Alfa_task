@@ -1,50 +1,55 @@
 import asyncio
+import aiocron
+from datetime import datetime
 from db.database import async_session_factory
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
-from fastapi import Depends
-from schemas.task import TaskStatus
-from db.crud import task_crud, plan_crud
-from datetime import date, datetime
+
+MIDNIGHT = datetime.strptime("00:00:00", "%H:%M:%S")
 
 
-async def check_plans():
+async def check_plans() -> None:
+    """Проверка планов на истекший дедлайн. В случае если дедлайн прошел
+    и план находится в статусе CREATED или IN_PROGRESS, статус плана изменяется
+    на FAILD. После этого все статусы задач CREATED и IN_PROGRESS в изменных
+    планах изменяются на FAILD"""
+
     async with async_session_factory() as session:
         sql = """WITH updated_plans AS(
-	                UPDATE plans.plan SET status = 'CREATED'
-		                WHERE plans.plan.status IN ('DONE', 'IN_PROGRESS')
-			                AND plans.plan.expires_at > NOW()
-		            RETURNING plans.plan.id
+                    UPDATE plans.plan SET status = 'FAILED'
+                        WHERE plans.plan.status IN ('CREATED', 'IN_PROGRESS')
+                            AND plans.plan.expires_at < NOW()
+                    RETURNING plans.plan.id
                 ),
                 update_tasks AS(
-                    UPDATE plans.task SET status = 'CREATED'
+                    UPDATE plans.task SET status = 'FAILED'
                         WHERE plans.task.plan_id IN
                             (SELECT * FROM updated_plans) AND
-                            plans.task.status = 'FAILED')
+                            plans.task.status IN ('CREATED', 'IN_PROGRESS')
+                )
                 SELECT * FROM updated_plans;"""
-        updated_plans_ids = await session.execute(text(sql))
+        await session.execute(text(sql))
         await session.commit()
-        print(updated_plans_ids.scalars().all())
+        print(5555)
 
 
-async def check_tasks():
+async def check_tasks() -> None:
+    """Проверка задач на истекший дедлайн. В случае если дедлайн истек, а
+    статус задачи CREATED или IN_PROGRESS, то статус данной задачи
+    изменяется на FAILED"""
+
     async with async_session_factory() as session:
-        sql = """UPDATE plans.task SET status = 'CREATED'
-                    WHERE plans.task.status IN ('IN_PROGRESS', 'FAILED') AND
-                        plans.task.expires_at > NOW()
+        sql = """UPDATE plans.task SET status = 'FAILED'
+                    WHERE plans.task.status IN ('CREATED', 'IN_PROGRESS') AND
+                        plans.task.expires_at < NOW()
                     RETURNING plans.task.id;"""
-        updated_tasks_ids = await session.execute(text(sql))
+        await session.execute(text(sql))
         await session.commit()
-        print(updated_tasks_ids.scalars().all())
-
-
-async def check_status():
-    pass
 
 
 async def main():
-    # await check_plans()
-    await check_tasks()
+    """Программа ждет до полуночи и запускает проверку статусов"""
+    aiocron.crontab("0 0 * * *", check_plans)
+    aiocron.crontab("0 0 * * *", check_tasks)
 
 if __name__ == "__main__":
     asyncio.run(main())
