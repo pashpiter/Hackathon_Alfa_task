@@ -41,8 +41,6 @@ async def check_task_and_user_access(
 
     raise ForbiddenException(ACCESS_DENIED)
 
-    return task
-
 
 async def check_plan_and_user_access(
         plan_id: PK_TYPE,
