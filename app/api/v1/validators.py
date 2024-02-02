@@ -1,13 +1,14 @@
 from datetime import date
 
-from core.exceptions import (ForbiddenException, IncorrectDate,
-                             NotFoundException, AlreadyExists)
+from core.exceptions import (AlreadyExists, ForbiddenException, IncorrectDate,
+                             NotFoundException)
 from db.crud import plan_crud, task_crud, user_crud
 from db.database import AsyncSession
 from schemas.base import PK_TYPE, USER_PK_TYPE
 from schemas.plan import PlanStatus, Plan
 from schemas.task import Task
 from schemas.user import User
+
 
 TASK_NOT_FOUND = "Задачи с id={} не существует."
 PLAN_NOT_FOUND = "Плана с id={} не существует."
@@ -39,6 +40,8 @@ async def check_task_and_user_access(
         return task
 
     raise ForbiddenException(ACCESS_DENIED)
+
+    return task
 
 
 async def check_plan_and_user_access(
