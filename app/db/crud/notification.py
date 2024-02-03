@@ -1,7 +1,7 @@
 from sqlalchemy import update
 
 from core.logger import logger_factory
-from db.crud.base import CRUDBase, ModelType
+from db.crud.base import CRUDBase
 from db.database import AsyncSession
 from schemas.base import PK_TYPE, USER_PK_TYPE
 from schemas.notification import Notification
@@ -34,7 +34,7 @@ class CRUDNotification(CRUDBase):
             self,
             session: AsyncSession,
             objs_in: list[Notification],
-    ) -> ModelType:
+    ) -> None:
         """Создаёт в БД записи из полученных объектов."""
         self.logger.debug(
             f'CREATE_MANY: model={self.model}, objs_in={objs_in}')

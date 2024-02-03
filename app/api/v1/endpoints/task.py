@@ -11,7 +11,7 @@ from schemas.base import PK_TYPE
 from schemas.comment import CommentType
 from schemas.plan import PlanStatus
 from schemas.task import (TaskCreate, TaskRead, TaskReadWithComments,
-                          TaskStatus, TaskUpdate, Task)
+                          TaskStatus, TaskUpdate)
 from services.user import User, get_user
 from schemas.notification import NotificationType, NotificationHeader
 from core.utils import name_compression
@@ -38,19 +38,19 @@ async def get_task(
     )
     # Проверка статуса задачи и изменение статуса задачи и статуса плана
     if task.status == TaskStatus.CREATED and user.supervisor_id:
-        task = await task_crud.update(
+        task = (await task_crud.update(
             session,
             {"id": task_id},
             {"status": TaskStatus.IN_PROGRESS},
             unique=True
-        )
+        ))[0]
         await plan_crud.update(
             session,
             {"id": task[0].plan_id},
             {"status": PlanStatus.IN_PROGRESS},
             unique=True
         )
-    return task if isinstance(task, Task) else task[0]
+    return task
 
 
 @router.get(
@@ -145,12 +145,12 @@ async def update_task(
         await validators.check_new_date_gt_current(
             task, task_patch.expires_at
         )
-    new_task = await task_crud.update(
+    new_task = (await task_crud.update(
         session,
         {"id": task_id},
         task_patch.model_dump(exclude_unset=True),
         unique=True
-    )
+    ))[0]
 
     if task_patch.status == TaskStatus.DONE:
         # Проверка что все задачи имею статус DONE и изменение статуса плана
@@ -158,7 +158,8 @@ async def update_task(
             session,
             {"plan_id": task.plan_id},
             unique=True)
-        if tasks_not_done.count(lambda x: x.status != TaskStatus.DONE):
+        if sum(1 for task in tasks_not_done if
+               task.get("status") != TaskStatus.DONE):
             plan_crud.update(
                 session, {"id": task.plan_id}, {"status": PlanStatus.DONE}
             )
@@ -203,7 +204,7 @@ async def update_task(
             }
         )
 
-    return new_task[0]
+    return new_task
 
 
 @router.delete(
