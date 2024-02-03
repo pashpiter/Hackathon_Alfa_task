@@ -56,6 +56,7 @@ class Task(TaskBase, table=True):
         }
     )
     plan: Optional["Plan"] = Relationship(
+        back_populates="tasks",
         sa_relationship_kwargs={
             "lazy": "joined"
         }

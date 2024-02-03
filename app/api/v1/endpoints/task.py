@@ -62,7 +62,7 @@ async def get_tasks(
     """Получение списка задач."""
     await validators.check_plan_and_user_access(plan_id, user.id, session)
     return await task_crud.get_all(
-        session, {"plan_id": plan_id,}, unique=True
+        session, {"plan_id": plan_id}, unique=True
     )
 
 
@@ -78,16 +78,18 @@ async def create_task(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создание задачи. Добавление нового нового комментарияк задаче."""
-    await validators.check_plan_and_user_access(plan_id, user.id, session)
+    plan = await validators.check_plan_and_user_access(
+        plan_id, user.id, session
+    )
     await validators.check_role(user)
     if task_create.expires_at:
         await validators.check_plan_tasks_expired_date(
-            session, plan_id, task_create.expires_at
+            session, plan, task_create.expires_at
         )
     task = await task_crud.create(
         session, {
-        **task_create.model_dump(),
-        "plan_id": plan_id
+            **task_create.model_dump(),
+            "plan_id": plan_id
         }
     )
     # Добавление комментария с датой создания
@@ -99,6 +101,11 @@ async def create_task(
             date.today().strftime("%d.%m.%Y")
         )
     })
+    # Изменение статуса плана, если он был DONE
+    if plan.status == PlanStatus.DONE:
+        plan_crud.update(
+            session, {"id": plan_id}, {"status": PlanStatus.IN_PROGRESS}
+        )
     return task
 
 
@@ -114,14 +121,30 @@ async def update_task(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление задачи."""
-    await validators.check_task_and_user_access(task_id, user.id, session)
+    task = await validators.check_task_and_user_access(
+        task_id, user.id, session
+    )
     await validators.check_role(user)
+    if task_patch.expires_at:
+        await validators.check_new_date_gt_current(
+            task, task_patch.expires_at
+        )
     new_task = await task_crud.update(
         session,
         {"id": task_id},
         task_patch.model_dump(exclude_unset=True),
         unique=True
     )
+    if task_patch.status == TaskStatus.DONE:
+        # Проверка что все задачи имею статус DONE и изменение статуса плана
+        tasks_not_done = await task_crud.get_all(
+            session,
+            {"plan_id": task.plan_id},
+            unique=True)
+        if tasks_not_done.count(lambda x: x.status != TaskStatus.DONE):
+            plan_crud.update(
+                session, {"id": task.plan_id}, {"status": PlanStatus.DONE}
+            )
     return new_task[0]
 
 
