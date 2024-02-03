@@ -2,8 +2,9 @@ import asyncio
 from datetime import date, datetime
 
 from sqlalchemy import and_, update
+from sqlalchemy.orm import selectinload
 
-from db.crud import notification_crud
+from db.crud import notification_crud, task_crud
 from db.database import async_session_factory
 from schemas.notification import (Notification, NotificationHeader,
                                   NotificationType)
@@ -23,11 +24,19 @@ async def check_plans() -> []:
         query = update(Plan).where(and_(
             Plan.status.in_((PlanStatus.CREATED, PlanStatus.IN_PROGRESS)),
             Plan.expires_at < date.today())
-        ).values({"status": PlanStatus.FAILED}).returning(Plan)
+        ).values({"status": PlanStatus.FAILED}).returning(Plan).options(  # fix
+            selectinload(Plan.tasks))
         query_plans = await session.execute(query)
         await session.commit()
         plans = query_plans.unique().scalars().all()
-    return [task for plan in plans for task in plan.tasks]
+        # Выбор задач со статусом "Создано" и "В работе" из просроченых планов
+        tasks_ids = [
+            task.id for plan in plans for task in plan.tasks if
+            task.status in (TaskStatus.CREATED, TaskStatus.IN_PROGRESS)
+        ]
+        tasks = await task_crud.update_many(session, tasks_ids,
+                                            {"status": TaskStatus.FAILED})
+    return tasks  # noqa: R504
 
 
 async def check_tasks() -> []:
@@ -38,8 +47,9 @@ async def check_tasks() -> []:
     async with async_session_factory() as session:
         query = update(Task).where(and_(
             Task.status.in_((TaskStatus.CREATED, TaskStatus.IN_PROGRESS)),
-            Task.expires_at > date.today())
-        ).values({"status": TaskStatus.CREATED}).returning(Task)
+            Task.expires_at < date.today())
+        ).values({"status": TaskStatus.FAILED}).returning(Task).options(
+            selectinload(Task.plan))
         tasks = await session.execute(query)
         await session.commit()
         return tasks.unique().scalars().all()
