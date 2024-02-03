@@ -50,3 +50,8 @@ def create_empty_file(
 
 def date_today() -> date:
     return date.today()
+
+
+def name_compression(full_name: str) -> str:
+    split_name = full_name.split()
+    return f"{split_name[0]} {split_name[1][1]}. {split_name[2][1]}."
