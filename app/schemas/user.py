@@ -16,19 +16,24 @@ class UserBase(SQLModel):
     @computed_field
     @property
     def short_name(self) -> str:
-        """Исходим из того, что формат full_name может быть следующим:
-        - Имя
-        - Имя Фамилия
-        - Имя Отчество Фамилия
+        """Формат full_name -> результат:
+        - Имя -> Имя
+        - Имя Фамилия -> Фамилия И.
+        - Фамилия Имя Отчество -> Фамилия И.О.
         """
         split_full_name = self.full_name.split()
-        if len(split_full_name) > 1:
-            return '{surname} {initials}.'.format(
-                surname=split_full_name[-1],
-                initials='.'.join(name[0] for name in split_full_name[:-1])
-            )
+        match len(split_full_name):
+            case 1:
+                return split_full_name[0]
 
-        return split_full_name[0]
+            case 2:
+                return f'{split_full_name[-1]} {split_full_name[0][0]}.'
+
+            case _:
+                return '{surname} {initials}.'.format(
+                    surname=split_full_name[0],
+                    initials='.'.join(name[0] for name in split_full_name[1:])
+                )
 
 
 class User(UserBase, table=True):
