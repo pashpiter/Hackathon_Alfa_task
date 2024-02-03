@@ -16,7 +16,8 @@ class UserBase(SQLModel):
     @computed_field
     @property
     def short_name(self) -> str:
-        """Формат full_name -> результат:
+        """Возвращает сокращённый формат полного имени.
+        Формат full_name -> результат:
         - Имя -> Имя
         - Имя Фамилия -> Фамилия И.
         - Фамилия Имя Отчество -> Фамилия И.О.
