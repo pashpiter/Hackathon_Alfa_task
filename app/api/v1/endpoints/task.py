@@ -20,6 +20,21 @@ logger = logger_factory(__name__)
 
 router = APIRouter(prefix="")
 
+TASK_NOTIFICATIONS: dict = {
+    TaskStatus.DONE: {
+        "type": NotificationType.SUCCESS,
+        "header": NotificationHeader.TASK_DONE
+    },
+    TaskStatus.UNDER_REVIEW: {
+        "type": NotificationType.COMMON,
+        "header": NotificationHeader.TASK_REVIEW
+    },
+    TaskStatus.IN_PROGRESS: {
+        "type": NotificationType.COMMON,
+        "header": NotificationHeader.TASK_IN_PROGRESS
+    },
+}
+
 
 @router.get(
     "/tasks/{task_id}",
@@ -153,7 +168,7 @@ async def update_task(
     ))[0]
 
     if task_patch.status == TaskStatus.DONE:
-        # Проверка что все задачи имею статус DONE и изменение статуса плана
+        # Проверка что все задачи имеют статус DONE
         tasks_not_done = await task_crud.get_all(
             session,
             {"plan_id": task.plan_id},
@@ -163,48 +178,20 @@ async def update_task(
             plan_crud.update(
                 session, {"id": task.plan_id}, {"status": PlanStatus.DONE}
             )
-        # Добавление уведомления об изменении статус задачи на "Выполнено"
+
+    if task_patch.status in TASK_NOTIFICATIONS:
+        # Добавление уведомления об изменении статус задачи
         await notification_crud.create(
             session, {
                 "recipient_id": task.plan.employee_id,
                 "task_id": task.id,
-                "type": NotificationType.SUCCESS,
-                "header": NotificationHeader.TASK_DONE,
                 "content": "{} {}".format(
                     name_compression(task.plan.employee.full_name), task.name
-                )
+                ),
+                **TASK_NOTIFICATIONS[task_patch.status]
             }
         )
-
-    if task_patch.status == TaskStatus.UNDER_REVIEW:
-        # Добавление уведомления об изменении статус задачи на "На проверке"
-        await notification_crud.create(
-            session, {
-                "recipient_id": task.plan.employee_id,
-                "task_id": task.id,
-                "type": NotificationType.COMMON,
-                "header": NotificationHeader.TASK_REVIEW,
-                "content": "{} {}".format(
-                    name_compression(task.plan.employee.full_name), task.name
-                )
-            }
-        )
-
-    if task_patch.status == TaskStatus.IN_PROGRESS:
-        # Добавление уведомления об изменении статус задачи на "В работе"
-        await notification_crud.create(
-            session, {
-                "recipient_id": task.plan.employee_id,
-                "task_id": task.id,
-                "type": NotificationType.COMMON,
-                "header": NotificationHeader.TASK_IN_PROGRESS,
-                "content": "{} {}".format(
-                    name_compression(task.plan.employee.full_name), task.name
-                )
-            }
-        )
-
-    return new_task
+    return new_task  # noqa R504
 
 
 @router.delete(
