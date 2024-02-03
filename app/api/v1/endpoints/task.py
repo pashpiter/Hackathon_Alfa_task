@@ -4,15 +4,17 @@ from typing import Union
 
 from api.v1 import openapi, validators
 from core.logger import logger_factory
-from db.crud import comment_crud, plan_crud, task_crud
+from db.crud import comment_crud, plan_crud, task_crud, notification_crud
 from db.database import AsyncSession, get_async_session
 from fastapi import APIRouter, Depends
 from schemas.base import PK_TYPE
 from schemas.comment import CommentType
 from schemas.plan import PlanStatus
 from schemas.task import (TaskCreate, TaskRead, TaskReadWithComments,
-                          TaskStatus, TaskUpdate)
+                          TaskStatus, TaskUpdate, Task)
 from services.user import User, get_user
+from schemas.notification import NotificationType, NotificationHeader
+from core.utils import name_compression
 
 logger = logger_factory(__name__)
 
@@ -39,14 +41,16 @@ async def get_task(
         task = await task_crud.update(
             session,
             {"id": task_id},
-            {"status": TaskStatus.IN_PROGRESS}
+            {"status": TaskStatus.IN_PROGRESS},
+            unique=True
         )
         await plan_crud.update(
             session,
-            {"id": task.plan_id},
-            {"status": PlanStatus.IN_PROGRESS}
+            {"id": task[0].plan_id},
+            {"status": PlanStatus.IN_PROGRESS},
+            unique=True
         )
-    return task
+    return task if isinstance(task, Task) else task[0]
 
 
 @router.get(
@@ -106,6 +110,18 @@ async def create_task(
         plan_crud.update(
             session, {"id": plan_id}, {"status": PlanStatus.IN_PROGRESS}
         )
+    # Добавление уведомления
+    await notification_crud.create(
+        session, {
+            "recipient_id": plan.employee_id,
+            "task_id": task.id,
+            "type": NotificationType.COMMON,
+            "header": NotificationHeader.TASK_NEW,
+            "content": "{} {}".format(
+                name_compression(user.full_name), task.name
+            )
+        }
+    )
     return task
 
 
@@ -135,6 +151,7 @@ async def update_task(
         task_patch.model_dump(exclude_unset=True),
         unique=True
     )
+
     if task_patch.status == TaskStatus.DONE:
         # Проверка что все задачи имею статус DONE и изменение статуса плана
         tasks_not_done = await task_crud.get_all(
@@ -145,6 +162,47 @@ async def update_task(
             plan_crud.update(
                 session, {"id": task.plan_id}, {"status": PlanStatus.DONE}
             )
+        # Добавление уведомления об изменении статус задачи на "Выполнено"
+        await notification_crud.create(
+            session, {
+                "recipient_id": task.plan.employee_id,
+                "task_id": task.id,
+                "type": NotificationType.SUCCESS,
+                "header": NotificationHeader.TASK_DONE,
+                "content": "{} {}".format(
+                    name_compression(task.plan.employee.full_name), task.name
+                )
+            }
+        )
+
+    if task_patch.status == TaskStatus.UNDER_REVIEW:
+        # Добавление уведомления об изменении статус задачи на "На проверке"
+        await notification_crud.create(
+            session, {
+                "recipient_id": task.plan.employee_id,
+                "task_id": task.id,
+                "type": NotificationType.COMMON,
+                "header": NotificationHeader.TASK_REVIEW,
+                "content": "{} {}".format(
+                    name_compression(task.plan.employee.full_name), task.name
+                )
+            }
+        )
+
+    if task_patch.status == TaskStatus.IN_PROGRESS:
+        # Добавление уведомления об изменении статус задачи на "В работе"
+        await notification_crud.create(
+            session, {
+                "recipient_id": task.plan.employee_id,
+                "task_id": task.id,
+                "type": NotificationType.COMMON,
+                "header": NotificationHeader.TASK_IN_PROGRESS,
+                "content": "{} {}".format(
+                    name_compression(task.plan.employee.full_name), task.name
+                )
+            }
+        )
+
     return new_task[0]
 
 
