@@ -2,11 +2,12 @@ from datetime import date
 from http import HTTPStatus
 from typing import Union
 
+from fastapi import APIRouter, Depends
+
 from api.v1 import openapi, validators
 from core.logger import logger_factory
 from db.crud import comment_crud, notification_crud, plan_crud, task_crud
 from db.database import AsyncSession, get_async_session
-from fastapi import APIRouter, Depends
 from schemas.base import PK_TYPE
 from schemas.comment import CommentType
 from schemas.notification import NotificationHeader, NotificationType
@@ -60,7 +61,7 @@ async def get_task(
         ))[0]
         await plan_crud.update(
             session,
-            {"id": task[0].plan_id},
+            {"id": task.plan_id},
             {"status": PlanStatus.IN_PROGRESS},
             unique=True
         )
