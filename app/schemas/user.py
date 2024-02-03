@@ -19,22 +19,18 @@ class UserBase(SQLModel):
         """Возвращает сокращённый формат полного имени.
         Формат full_name -> результат:
         - Имя -> Имя
-        - Имя Фамилия -> Фамилия И.
+        - Фамилия Имя -> Фамилия И.
         - Фамилия Имя Отчество -> Фамилия И.О.
         """
         split_full_name = self.full_name.split()
-        match len(split_full_name):
-            case 1:
-                return split_full_name[0]
 
-            case 2:
-                return f'{split_full_name[-1]} {split_full_name[0][0]}.'
+        if len(split_full_name) == 1:
+            return split_full_name[0]
 
-            case _:
-                return '{surname} {initials}.'.format(
-                    surname=split_full_name[0],
-                    initials='.'.join(name[0] for name in split_full_name[1:])
-                )
+        return '{surname} {initials}.'.format(
+            surname=split_full_name[0],
+            initials='.'.join(name[0] for name in split_full_name[1:])
+        )
 
 
 class User(UserBase, table=True):
