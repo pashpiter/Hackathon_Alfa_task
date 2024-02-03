@@ -4,17 +4,16 @@ from typing import Union
 
 from api.v1 import openapi, validators
 from core.logger import logger_factory
-from db.crud import comment_crud, plan_crud, task_crud, notification_crud
+from db.crud import comment_crud, notification_crud, plan_crud, task_crud
 from db.database import AsyncSession, get_async_session
 from fastapi import APIRouter, Depends
 from schemas.base import PK_TYPE
 from schemas.comment import CommentType
+from schemas.notification import NotificationHeader, NotificationType
 from schemas.plan import PlanStatus
 from schemas.task import (TaskCreate, TaskRead, TaskReadWithComments,
                           TaskStatus, TaskUpdate)
 from services.user import User, get_user
-from schemas.notification import NotificationType, NotificationHeader
-from core.utils import name_compression
 
 logger = logger_factory(__name__)
 
@@ -133,7 +132,7 @@ async def create_task(
             "type": NotificationType.COMMON,
             "header": NotificationHeader.TASK_NEW,
             "content": "{} {}".format(
-                name_compression(user.full_name), task.name
+                user.short_name, task.name
             )
         }
     )
@@ -186,7 +185,7 @@ async def update_task(
                 "recipient_id": task.plan.employee_id,
                 "task_id": task.id,
                 "content": "{} {}".format(
-                    name_compression(task.plan.employee.full_name), task.name
+                    user.short_name, task.name
                 ),
                 **TASK_NOTIFICATIONS[task_patch.status]
             }
