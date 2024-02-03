@@ -15,6 +15,15 @@ class NotificationType(str, enum.Enum):
     COMMON = 'common'
 
 
+class NotificationHeader(str, enum.Enum):
+    TASK_DONE = "Задача выполнена"
+    TASK_NEW = "Новая задача"
+    TASK_REVIEW = "Задача на проверке"
+    TASK_FAILED = "Задача не выполнена"
+    TASK_IN_PROGRESS = "Задача в работе"
+    COMMENT_NEW = "Новый комментарий"
+
+
 class NotificationBase(SQLModel):
     type: NotificationType
     header: str

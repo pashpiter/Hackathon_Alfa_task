@@ -7,15 +7,18 @@ from api.v1 import openapi, validators
 from core.config import ATTACHMENT, ATTACHMENT_DIR, STATIC
 from core.logger import logger_factory
 from core.utils import create_empty_file
-from db.crud import comment_crud, unread_comment_crud
+from db.crud import comment_crud, notification_crud, unread_comment_crud
 from db.database import AsyncSession, get_async_session
 from schemas.base import PK_TYPE
 from schemas.comment import CommentCreate, CommentRead
+from schemas.notification import NotificationHeader, NotificationType
 from services.user import User, get_user
 
 logger = logger_factory(__name__)
 
 router = APIRouter()
+
+NEW_COMMENT = '{author} оставил новый комментарий по задаче {task}'
 
 
 @router.get(
@@ -34,6 +37,18 @@ async def get_comments(
     # сбрасываем счётчик непрочитанных комментариев у пользователя
     await unread_comment_crud.delete(
         session, {'reader_id': user.id, 'task_id': task_id}
+    )
+
+    # помечаем уведомления о новых комментариях к задаче прочитанными
+    await notification_crud.update(
+        session,
+        {
+            'recipient_id': user.id,
+            'task_id': task_id,
+            'header': NotificationHeader.COMMENT_NEW,
+            'is_read': False
+        },
+        {'is_read': True}
     )
 
     return await comment_crud.get_all(
@@ -59,13 +74,42 @@ async def create_comment(
         task_id, user.id, session
     )
 
+    reader_ids = [
+        user.supervisor_id if user.supervisor_id else task.plan.employee_id
+    ]
+
     # увеличиваем счётчик непрочитанных комментариев у всех пользователей,
-    # имеющих доступ к комментариям (за исключением автора комментария)
-    await unread_comment_crud.increase_counter(
-        session,
-        task_id,
-        [user.supervisor_id if user.supervisor_id else task.plan.employee_id]
-    )
+    # связанных с задачей, за исключением автора комментария
+    await unread_comment_crud.increase_counter(session, task_id, reader_ids)
+
+    # создаём уведомление о новом комментарии у всех пользователей, связанных
+    # с задачей, за исключением автора комментария.
+    for reader_id in reader_ids:
+        unread_notification = await notification_crud.get(
+            session,
+            {
+                'recipient_id': reader_id,
+                'task_id': task_id,
+                'header': NotificationHeader.COMMENT_NEW,
+                'is_read': False
+            }
+        )
+        # если у пользователя уже висит непрочитанное уведомление о новом
+        # комментарии, тогда ещё одного уведомления не создаём
+        if unread_notification is None:
+            await notification_crud.create(
+                session,
+                {
+                    'recipient_id': reader_id,
+                    'task_id': task_id,
+                    'type': NotificationType.COMMON,
+                    'header': NotificationHeader.COMMENT_NEW,
+                    'content': NEW_COMMENT.format(
+                        author=user.short_name,
+                        task=task.name
+                    )
+                }
+            )
 
     await comment_crud.create(
         session,
