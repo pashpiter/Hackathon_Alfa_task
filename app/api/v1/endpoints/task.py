@@ -155,7 +155,9 @@ async def update_task(
     task = await validators.check_task_and_user_access(
         task_id, user.id, session
     )
-    await validators.check_role(user)
+    # Проверка статуса, который сотрудник может изменить
+    if task_patch.status != TaskStatus.UNDER_REVIEW:
+        await validators.check_role(user)
     if task_patch.expires_at:
         await validators.check_new_date_gt_current(
             task, task_patch.expires_at
