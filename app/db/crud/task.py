@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 
 class CRUDTask(CRUDBase):
 
-    async def update_many(
+    async def update_by_ids(
             self,
             session: AsyncSession,
             task_ids: list[int],

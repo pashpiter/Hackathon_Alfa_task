@@ -34,8 +34,8 @@ async def check_plans() -> []:
             task.id for plan in plans for task in plan.tasks if
             task.status in (TaskStatus.CREATED, TaskStatus.IN_PROGRESS)
         ]
-        tasks = await task_crud.update_many(session, tasks_ids,
-                                            {"status": TaskStatus.FAILED})
+        tasks = await task_crud.update_by_ids(session, tasks_ids,
+                                              {"status": TaskStatus.FAILED})
     return tasks  # noqa: R504
 
 
