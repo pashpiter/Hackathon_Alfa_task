@@ -35,6 +35,11 @@ async def make_http_request(aiohttp_client: aiohttp.ClientSession):
         if headers is None:
             headers = {}
 
+        if params:
+            for key, value in params.items():
+                if isinstance(value, bool):
+                    params[key] = 'true' if value else 'false'
+
         if token:
             headers['Authorization'] = f'Bearer {token}'
 
