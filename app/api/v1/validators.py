@@ -70,7 +70,6 @@ async def check_role(
 
 
 async def check_plan_tasks_expired_date(
-        session: AsyncSession,
         plan: Plan,
         date_in_task: date
 ) -> None:
@@ -104,6 +103,8 @@ async def check_employee_related_supervisor(
 
     if employee.supervisor_id != supervisor_id:
         raise ForbiddenException(NOT_RELATED_EMPLOYEE)
+
+    return employee
 
 
 async def check_no_active_plan(

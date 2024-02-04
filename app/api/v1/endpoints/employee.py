@@ -27,11 +27,9 @@ async def get_employee(
     # Валидация доступа
     await validators.check_role(user)
     # Проверка существования сотрудника
-    employee = await user_crud.get(session, {"id": employee_id})
-    await validators.check_employee_related_supervisor(
+    return await validators.check_employee_related_supervisor(
         user.id, employee_id, session
     )
-    return employee
 
 
 @router.get(
