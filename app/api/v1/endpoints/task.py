@@ -2,13 +2,15 @@ from datetime import date
 from http import HTTPStatus
 from typing import Union
 
+from fastapi import APIRouter, Depends
+
 from api.v1 import openapi, validators
 from core.logger import logger_factory
-from db.crud import comment_crud, plan_crud, task_crud
+from db.crud import comment_crud, notification_crud, plan_crud, task_crud
 from db.database import AsyncSession, get_async_session
-from fastapi import APIRouter, Depends
 from schemas.base import PK_TYPE
 from schemas.comment import CommentType
+from schemas.notification import NotificationHeader, NotificationType
 from schemas.plan import PlanStatus
 from schemas.task import (TaskCreate, TaskRead, TaskReadWithComments,
                           TaskStatus, TaskUpdate)
@@ -17,6 +19,21 @@ from services.user import User, get_user
 logger = logger_factory(__name__)
 
 router = APIRouter(prefix="")
+
+TASK_NOTIFICATIONS: dict = {
+    TaskStatus.DONE: {
+        "type": NotificationType.SUCCESS,
+        "header": NotificationHeader.TASK_DONE
+    },
+    TaskStatus.UNDER_REVIEW: {
+        "type": NotificationType.COMMON,
+        "header": NotificationHeader.TASK_REVIEW
+    },
+    TaskStatus.IN_PROGRESS: {
+        "type": NotificationType.COMMON,
+        "header": NotificationHeader.TASK_IN_PROGRESS
+    },
+}
 
 
 @router.get(
@@ -36,15 +53,17 @@ async def get_task(
     )
     # Проверка статуса задачи и изменение статуса задачи и статуса плана
     if task.status == TaskStatus.CREATED and user.supervisor_id:
-        task = await task_crud.update(
+        task = (await task_crud.update(
             session,
             {"id": task_id},
-            {"status": TaskStatus.IN_PROGRESS}
-        )
+            {"status": TaskStatus.IN_PROGRESS},
+            unique=True
+        ))[0]
         await plan_crud.update(
             session,
             {"id": task.plan_id},
-            {"status": PlanStatus.IN_PROGRESS}
+            {"status": PlanStatus.IN_PROGRESS},
+            unique=True
         )
     return task
 
@@ -106,6 +125,18 @@ async def create_task(
         plan_crud.update(
             session, {"id": plan_id}, {"status": PlanStatus.IN_PROGRESS}
         )
+    # Добавление уведомления
+    await notification_crud.create(
+        session, {
+            "recipient_id": plan.employee_id,
+            "task_id": task.id,
+            "type": NotificationType.COMMON,
+            "header": NotificationHeader.TASK_NEW,
+            "content": "{} {}".format(
+                user.short_name, task.name
+            )
+        }
+    )
     return task
 
 
@@ -129,23 +160,38 @@ async def update_task(
         await validators.check_new_date_gt_current(
             task, task_patch.expires_at
         )
-    new_task = await task_crud.update(
+    new_task = (await task_crud.update(
         session,
         {"id": task_id},
         task_patch.model_dump(exclude_unset=True),
         unique=True
-    )
+    ))[0]
+
     if task_patch.status == TaskStatus.DONE:
-        # Проверка что все задачи имею статус DONE и изменение статуса плана
+        # Проверка что все задачи имеют статус DONE
         tasks_not_done = await task_crud.get_all(
             session,
             {"plan_id": task.plan_id},
             unique=True)
-        if tasks_not_done.count(lambda x: x.status != TaskStatus.DONE):
+        if sum(1 for task in tasks_not_done if
+               task.get("status") != TaskStatus.DONE):
             plan_crud.update(
                 session, {"id": task.plan_id}, {"status": PlanStatus.DONE}
             )
-    return new_task[0]
+
+    if task_patch.status in TASK_NOTIFICATIONS:
+        # Добавление уведомления об изменении статус задачи
+        await notification_crud.create(
+            session, {
+                "recipient_id": task.plan.employee_id,
+                "task_id": task.id,
+                "content": "{} {}".format(
+                    user.short_name, task.name
+                ),
+                **TASK_NOTIFICATIONS[task_patch.status]
+            }
+        )
+    return new_task  # noqa R504
 
 
 @router.delete(

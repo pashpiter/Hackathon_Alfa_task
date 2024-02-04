@@ -30,5 +30,23 @@ class CRUDNotification(CRUDBase):
         await session.execute(query)
         await session.commit()
 
+    async def create_many(
+            self,
+            session: AsyncSession,
+            objs_in: list[Notification],
+    ) -> None:
+        """Создаёт в БД записи из полученных объектов."""
+        self.logger.debug(
+            f'CREATE_MANY: model={self.model}, objs_in={objs_in}')
+
+        if not (isinstance(objs_in, list)):
+            msg = f'Source object should be of types: list or {self.model}'
+            self.logger.error(msg)
+            raise ValueError(msg)
+
+        session.add_all(objs_in)
+        await session.commit()
+        await session.refresh(objs_in)
+
 
 notification_crud = CRUDNotification(Notification, logger_factory(__name__))
