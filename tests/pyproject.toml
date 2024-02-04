@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "test"
+description = ""
+version = "0.1.0"
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic = "^2.6.0"
+sqlalchemy = "1.4.29"
+asyncpg = "^0.29.0"
+python-dotenv = "^1.0.0"
+orjson = "^3.9.0"
+aiohttp = "^3.8.4"
+pytest = "^7.3.1"
+pytest-asyncio = "^0.21.0"
+pydantic-settings = "^2.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
