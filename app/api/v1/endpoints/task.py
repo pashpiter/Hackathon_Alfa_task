@@ -156,7 +156,11 @@ async def update_task(
         task_id, user.id, session
     )
     # Проверка статуса, который сотрудник может изменить
-    if task_patch.status != TaskStatus.UNDER_REVIEW:
+    if not (
+        task_patch.status == TaskStatus.UNDER_REVIEW
+        and len(task_patch.model_fields_set) == 1  # noqa W503
+        and user.supervisor_id  # noqa W503
+        and task.status == TaskStatus.IN_PROGRESS):  # noqa W503
         await validators.check_role(user)
     if task_patch.expires_at:
         await validators.check_new_date_gt_current(
