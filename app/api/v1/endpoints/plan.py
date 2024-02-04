@@ -3,10 +3,11 @@ from fastapi.responses import RedirectResponse
 
 from api.v1 import openapi, validators
 from core.logger import logger_factory
-from db.crud import plan_crud
+from db.crud import plan_crud, user_crud
 from db.database import AsyncSession, get_async_session
 from schemas.base import PK_TYPE
-from schemas.plan import PlanCreate, PlanRead, PlanReadWithTasks, PlanUpdate
+from schemas.plan import (PlanCreate, PlanRead, PlanReadWithTasks,
+                          PlanReadWithTasksSubsituteEmployee, PlanUpdate)
 from services.user import User, get_user
 
 logger = logger_factory(__name__)
@@ -16,7 +17,7 @@ router = APIRouter(prefix='/plans')
 
 @router.get(
     '/{plan_id}',
-    response_model=PlanReadWithTasks,
+    response_model=PlanReadWithTasks | PlanReadWithTasksSubsituteEmployee,
     **openapi.plan.get_plan.model_dump()
 )
 async def get_plan(
@@ -24,9 +25,21 @@ async def get_plan(
         user: User = Depends(get_user),
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Получение ИПР по id."""
-    return await validators.check_plan_and_user_access(
+    """Получение ИПР по id.
+    Если запрашивает руководитель - возвращает план со списком задач и
+    информацию о сотруднике.
+    Если запращивает сотрудник - возвращает план со списком задач и
+    информацию о руководителе.
+    """
+    plan = await validators.check_plan_and_user_access(
         plan_id, user.id, session
+    )
+    if not user.supervisor_id:
+        return plan
+    supervisor = await user_crud.get(session, {"id": user.supervisor_id})
+    return PlanReadWithTasksSubsituteEmployee(
+        **plan.model_dump(),
+        supervisor=supervisor
     )
 
 

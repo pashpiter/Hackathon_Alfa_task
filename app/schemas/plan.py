@@ -71,6 +71,14 @@ class PlanReadWithTasks(PlanRead):
     tasks: List[TaskRead] | None = []
 
 
+class PlanReadWithTasksSubsituteEmployee(PlanBase):
+    id: PK_TYPE
+    status: PlanStatus
+    created_at: date
+    supervisor: UserRead
+    tasks: List[TaskRead] | None = []
+
+
 class PlanUpdate(SQLModel):
     aim_description: Optional[str] = None
     expires_at: Optional[EXPIRES_DATE_TYPE] = None
