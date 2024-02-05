@@ -4,25 +4,25 @@ from pathlib import Path
 
 class File:
     name: str
-    extension: str = ''
+    extension: str = ""
     _version: int = 0
 
-    EMPTY_NAME_ERROR = 'Имя файла не может быть пустым'
+    EMPTY_NAME_ERROR = "Имя файла не может быть пустым"
 
     def __init__(self, filename: str):
         if not filename:
             raise ValueError(self.EMPTY_NAME_ERROR)
 
-        _file = filename.rsplit('.', 1)
+        _file = filename.rsplit(".", 1)
         self.name = _file[0]
         if len(_file) == 2:
             self.extension = _file[1]
 
     def __str__(self):
-        return '{name}{version}{extension}'.format(
+        return "{name}{version}{extension}".format(
             name=self.name,
-            version=f' ({self._version})' if self._version else '',
-            extension=f'.{self.extension}' if self.extension else ''
+            version=f" ({self._version})" if self._version else "",
+            extension=f".{self.extension}" if self.extension else ""
         )
 
     def increase_version(self):
@@ -37,7 +37,7 @@ def create_empty_file(
     такой файл уже существует, добавляет к имени цифру в скобках до тех пор,
     пока не найдётся свободное имя."""
     directory.mkdir(exist_ok=True)
-    file = File(filename)
+    file = File(filename)  # noqa VNE002
     while True:
         try:
             Path.touch(directory / str(file), exist_ok=False)
