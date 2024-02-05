@@ -141,16 +141,3 @@ async def create_notification(make_db_request):
         await make_db_request('EXECUTE', sql)
 
     return inner
-
-
-@pytest_asyncio.fixture(scope='session')
-async def get(make_db_request):
-    async def inner(user_id: int,
-                    table: str):
-        print(user_id)
-        sql = f"""
-        SELECT * FROM test.{table} WHERE id = {user_id}
-        """
-        await make_db_request('FETCHALL', sql)
-
-    return inner
