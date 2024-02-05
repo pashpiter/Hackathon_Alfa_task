@@ -106,12 +106,16 @@ async def create_task(make_db_request):
             description: str,
             status: PlanStatus,
             plan_id: PK_TYPE,
-            expires_at: date
+            expires_at: date | None
     ):
+        if expires_at:
+            values = f"""VALUES ('{id}', '{name}', '{description}', '{status}', '{plan_id}', '{expires_at}');"""
+        else:
+            values = f"""VALUES ('{id}', '{name}', '{description}', '{status}', '{plan_id}', {expires_at});"""
         sql = f"""
         INSERT INTO "task"
         (id, name, description, status, plan_id, expires_at)
-        VALUES ('{id}', '{name}', '{description}', '{status}', '{plan_id}', '{expires_at}');
+        {values}
         """
         await make_db_request('EXECUTE', sql)
 
