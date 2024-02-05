@@ -51,4 +51,8 @@ class User(UserBase, table=True):
 
 class UserRead(UserBase):
     id: int
+
+
+class UserReadWithSupervisor(UserBase):
+    id: int
     supervisor: Optional['UserRead']
