@@ -72,7 +72,7 @@ async def create_user(make_db_request):
     ):
         sql = f"""
         INSERT INTO "user"
-        (id, full_name, position, token, supervisor_id) 
+        (id, full_name, position, token, supervisor_id)
         VALUES ({id}, '{full_name}', '{position}', '{token}', {supervisor_id});
         """
         await make_db_request('EXECUTE', sql)
@@ -139,5 +139,18 @@ async def create_notification(make_db_request):
         VALUES ({id}, '{recipient_id}', '{type}', '{header}', '{content}', {is_read}, {task_id});
         """
         await make_db_request('EXECUTE', sql)
+
+    return inner
+
+
+@pytest_asyncio.fixture(scope='session')
+async def get(make_db_request):
+    async def inner(user_id: int,
+                    table: str):
+        print(user_id)
+        sql = f"""
+        SELECT * FROM test.{table} WHERE id = {user_id}
+        """
+        await make_db_request('FETCHALL', sql)
 
     return inner

@@ -10,7 +10,6 @@ async def notification_get_all(make_http_request, get_notification_api_url):
             params={'unread_only': unread_only},
             token=token
         )
-
     return inner
 
 
@@ -23,5 +22,4 @@ async def notification_make_read(make_http_request, get_notification_api_url):
             data=notification_ids,
             token=token
         )
-
     return inner
