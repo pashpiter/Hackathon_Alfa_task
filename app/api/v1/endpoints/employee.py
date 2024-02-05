@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends
 
 from api.v1 import openapi, validators
 from core.logger import logger_factory
+from db.crud.user import user_crud
 from db.database import AsyncSession, get_async_session
 from schemas.base import USER_PK_TYPE
 from schemas.user import User, UserRead, UserReadWithSupervisor
 from services.user import get_user
-from db.crud.user import user_crud
 
 logger = logger_factory(__name__)
 
@@ -43,8 +43,8 @@ async def search_employees(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Получение списка сотрудников относящихся к руководителю
-    с возможностью фильтрации по ФИО. При full_name = 'аша' выдаются все
-    пользователи в фио которых есть совпадения с 'аша'."""
+    с возможностью фильтрации по ФИО. При full_name = "аша" выдаются все
+    пользователи в фио которых есть совпадения с "аша"."""
     # Валидация доступа
     await validators.check_role(user)
     # Поиск сотрудников

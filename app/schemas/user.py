@@ -27,9 +27,9 @@ class UserBase(SQLModel):
         if len(split_full_name) == 1:
             return split_full_name[0]
 
-        return '{surname} {initials}.'.format(
+        return "{surname} {initials}.".format(
             surname=split_full_name[0],
-            initials='.'.join(name[0] for name in split_full_name[1:])
+            initials=".".join(name[0] for name in split_full_name[1:])
         )
 
 
@@ -38,13 +38,13 @@ class User(UserBase, table=True):
 
     id: Optional[USER_PK_TYPE] = Field(default=None, primary_key=True)
     token: str
-    supervisor_id: Optional[USER_PK_TYPE] = Field(foreign_key='user.id',
+    supervisor_id: Optional[USER_PK_TYPE] = Field(foreign_key="user.id",
                                                   nullable=True)
 
-    supervisor: Optional['User'] = Relationship(
+    supervisor: Optional["User"] = Relationship(
         sa_relationship_kwargs={
             "lazy": "joined",
-            "remote_side": 'User.id'
+            "remote_side": "User.id"
         }
     )
 
@@ -55,4 +55,4 @@ class UserRead(UserBase):
 
 class UserReadWithSupervisor(UserBase):
     id: int
-    supervisor: Optional['UserRead']
+    supervisor: Optional["UserRead"]

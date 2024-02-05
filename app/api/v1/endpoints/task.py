@@ -103,7 +103,7 @@ async def create_task(
     await validators.check_role(user)
     if task_create.expires_at:
         await validators.check_plan_tasks_expired_date(
-            session, plan, task_create.expires_at
+            plan, task_create.expires_at
         )
     task = await task_crud.create(
         session, {

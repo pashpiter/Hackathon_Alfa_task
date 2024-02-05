@@ -5,9 +5,11 @@ BASE_DIR: Path = Path(__file__).parent.parent
 sys.path.append(str(BASE_DIR))
 
 import asyncio
-from sqlalchemy import select, func
-from db.database import async_session_factory
+
 from schemas.user import User
+from sqlalchemy import func, select
+
+from db.database import async_session_factory
 
 bearer_tokens = [
     "0987654321zyxwvutsrqponmlkjihgfedcba",

@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 import aiofiles
-from fastapi import APIRouter, Depends, UploadFile
 
 from api.v1 import openapi, validators
 from core.config import ATTACHMENT, ATTACHMENT_DIR, STATIC
@@ -9,6 +8,7 @@ from core.logger import logger_factory
 from core.utils import create_empty_file
 from db.crud import comment_crud, notification_crud, unread_comment_crud
 from db.database import AsyncSession, get_async_session
+from fastapi import APIRouter, Depends, UploadFile
 from schemas.base import PK_TYPE
 from schemas.comment import CommentCreate, CommentRead
 from schemas.notification import NotificationHeader, NotificationType
@@ -18,7 +18,7 @@ logger = logger_factory(__name__)
 
 router = APIRouter()
 
-NEW_COMMENT = '{author} {task}'
+NEW_COMMENT = "{author} {task}"
 
 
 @router.get(
@@ -36,25 +36,25 @@ async def get_comments(
 
     # сбрасываем счётчик непрочитанных комментариев у пользователя
     await unread_comment_crud.delete(
-        session, {'reader_id': user.id, 'task_id': task_id}
+        session, {"reader_id": user.id, "task_id": task_id}
     )
 
     # помечаем уведомления о новых комментариях к задаче прочитанными
     await notification_crud.update(
         session,
         {
-            'recipient_id': user.id,
-            'task_id': task_id,
-            'header': NotificationHeader.COMMENT_NEW,
-            'is_read': False
+            "recipient_id": user.id,
+            "task_id": task_id,
+            "header": NotificationHeader.COMMENT_NEW,
+            "is_read": False
         },
-        {'is_read': True}
+        {"is_read": True}
     )
 
     return await comment_crud.get_all(
         session,
-        {'task_id': task_id},
-        sort='created_at desc'
+        {"task_id": task_id},
+        sort="created_at desc"
     )
 
 
@@ -88,10 +88,10 @@ async def create_comment(
         unread_notification = await notification_crud.get(
             session,
             {
-                'recipient_id': reader_id,
-                'task_id': task_id,
-                'header': NotificationHeader.COMMENT_NEW,
-                'is_read': False
+                "recipient_id": reader_id,
+                "task_id": task_id,
+                "header": NotificationHeader.COMMENT_NEW,
+                "is_read": False
             }
         )
         # если у пользователя уже висит непрочитанное уведомление о новом
@@ -100,11 +100,11 @@ async def create_comment(
             await notification_crud.create(
                 session,
                 {
-                    'recipient_id': reader_id,
-                    'task_id': task_id,
-                    'type': NotificationType.COMMON,
-                    'header': NotificationHeader.COMMENT_NEW,
-                    'content': NEW_COMMENT.format(
+                    "recipient_id": reader_id,
+                    "task_id": task_id,
+                    "type": NotificationType.COMMON,
+                    "header": NotificationHeader.COMMENT_NEW,
+                    "content": NEW_COMMENT.format(
                         author=user.short_name,
                         task=task.name
                     )
@@ -115,8 +115,8 @@ async def create_comment(
         session,
         {
             **comment.model_dump(),
-            'task_id': task_id,
-            'author_id': user.id
+            "task_id": task_id,
+            "author_id": user.id
         }
     )
 
@@ -135,15 +135,15 @@ async def upload_file(
     """Загрузка файла. Возвращает путь к загруженному файлу."""
     await validators.check_task_and_user_access(task_id, user.id, session)
 
-    task_directory = ATTACHMENT_DIR / f'task_{task_id}'
+    task_directory = ATTACHMENT_DIR / f"task_{task_id}"
     filename = create_empty_file(task_directory, file.filename)
     filepath = task_directory / filename
 
-    async with aiofiles.open(filepath, 'wb') as out_file:
+    async with aiofiles.open(filepath, "wb") as out_file:
         content = await file.read()
         await out_file.write(content)
 
-    return f'{STATIC}/{ATTACHMENT}/task_{task_id}/{filename}'
+    return f"{STATIC}/{ATTACHMENT}/task_{task_id}/{filename}"
 
 
 @router.get(
