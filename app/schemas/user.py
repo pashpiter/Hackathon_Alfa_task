@@ -2,7 +2,7 @@
 from typing import Optional
 
 from pydantic import computed_field
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship
 
 from core.config import settings
 from schemas.base import USER_PK_TYPE
@@ -38,12 +38,17 @@ class User(UserBase, table=True):
 
     id: Optional[USER_PK_TYPE] = Field(default=None, primary_key=True)
     token: str
-    supervisor_id: Optional[int]
+    supervisor_id: Optional[USER_PK_TYPE] = Field(foreign_key='user.id',
+                                                  nullable=True)
+
+    supervisor: Optional['User'] = Relationship(
+        sa_relationship_kwargs={
+            "lazy": "joined",
+            "remote_side": 'User.id'
+        }
+    )
 
 
 class UserRead(UserBase):
     id: int
-
-
-class UserReadWithSupervisor(UserRead):
-    supervisor: Optional[UserRead] = None
+    supervisor: Optional['User']
