@@ -112,6 +112,6 @@ Openapi документация доступна по адресам:
 
 [Александр Бондаренко](https://github.com/dcomrad) - Разработчик
 
-[Денис Заборовский](https://github.com/danlaryushin) - Разработчик
+[Денис Заборовский](https://github.com/zrivkoren) - Разработчик
 
-[Иван Павлов](https://github.com/GUSICATC) - Разработчик
+[Иван Павлов](https://github.com/ivnpvl) - Разработчик
