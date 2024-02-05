@@ -111,7 +111,7 @@ async def create_task(make_db_request):
         sql = f"""
         INSERT INTO "task"
         (id, name, description, status, plan_id, expires_at)
-        VALUES ('{id}', '{name}', '{description}', '{status}', '{plan_id}', {expires_at});
+        VALUES ('{id}', '{name}', '{description}', '{status}', '{plan_id}', '{expires_at}');
         """
         await make_db_request('EXECUTE', sql)
 

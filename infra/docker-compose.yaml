@@ -8,8 +8,6 @@ services:
     restart: on-failure
     expose:
       - ${POSTGRES_PORT}
-    ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:

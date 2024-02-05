@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 
 class FastapiSettings(BaseSettings):
     host: str = Field('127.0.0.1', alias='SERVER_HOST')
-    port: str = Field('8000', alias='SERVER_PORT')
+    port: str = Field('80', alias='SERVER_PORT')
 
     @property
     def url(self):
@@ -17,7 +17,7 @@ class PostgresSettings(BaseSettings):
     port: int = Field(5432, alias='POSTGRES_PORT')
     user: str = Field('user', alias='POSTGRES_USER')
     password: str = Field('password', alias='POSTGRES_PASSWORD')
-    search_path: str = Field('test', alias='POSTGRES_SEARCH_PATH')
+    search_path: str = Field('test', alias='POSTGRES_SCHEMA')
 
 
 class TestSettings(BaseSettings):

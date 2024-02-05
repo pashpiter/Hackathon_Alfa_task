@@ -22,6 +22,18 @@ dev-down-volumes:
 	@echo "Stopping service and removing all volumes in a development mode ..."
 	cd infra && sudo docker compose -f docker-compose.yaml -f docker-compose-dev.yaml --env-file=env/general down -v
 
+test-up:
+	@echo "Running test ..."
+	cd infra && sudo docker compose -f docker-compose-test.yaml --env-file=test-env/general up --build -d
+
+test-down:
+	@echo "Running test ..."
+	cd infra && sudo docker compose -f docker-compose-test.yaml --env-file=test-env/general down
+
+test-down-volumes:
+	@echo "Running test ..."
+	cd infra && sudo docker compose -f docker-compose-test.yaml --env-file=test-env/general down -v
+
 app-up:
 	@echo "Starting FastAPI app ..."
 	cd app && uvicorn main:app --reload
