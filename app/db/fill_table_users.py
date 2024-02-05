@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+
+BASE_DIR: Path = Path(__file__).parent.parent
+sys.path.append(str(BASE_DIR))
+
 import asyncio
 from sqlalchemy import select, func
 from db.database import async_session_factory

@@ -14,6 +14,14 @@
 Репозиторий с исходным кодом: https://github.com/pashpiter/Hackathon_Alfa_task/  
 Проект запущен по адресу: http://51.250.6.208/
 
+<br> 
+
+В базе данных создано два пользователя
+
+Руководитель: Андреев Андрей Андреевич, токен: `1234567890abcdefghijklmnopqrstuvwxyz`
+
+Сотрудник: Иванов Иван Иванович, токен: `0987654321zyxwvutsrqponmlkjihgfedcba`
+
 ___
 ## **Спецификация проекта**:
 - для построения REST API используется фреймворк FastAPI
@@ -80,6 +88,19 @@ DEBUG=False
 make up             - запуск сервиса
 make down           - остановка сервиса
 make down-volumes   - остановка сервиса с удалением всех данных
+```
+
+## **Как наполнить базу**:
+
+* Зайдите в контейнер fastapi:
+```
+cd infra
+sudo docker compose --file=docker-compose.yaml --env-file=env/general exec fastapi bash
+```
+* Залейте дамп в базу данных:
+```
+cd db
+python fill_table_users.py
 ```
 
 Openapi документация доступна по адресам:
