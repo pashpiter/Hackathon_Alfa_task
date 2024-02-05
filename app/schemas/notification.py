@@ -10,9 +10,9 @@ from schemas.base import PK_TYPE, USER_PK_TYPE
 
 
 class NotificationType(str, enum.Enum):
-    SUCCESS = 'success'
-    FAIL = 'fail'
-    COMMON = 'common'
+    SUCCESS = "success"
+    FAIL = "fail"
+    COMMON = "common"
 
 
 class NotificationHeader(str, enum.Enum):
@@ -32,11 +32,11 @@ class NotificationBase(SQLModel):
 
 
 class Notification(NotificationBase, table=True):
-    __table_args__ = {'schema': settings.postgres.db_schema}
+    __table_args__ = {"schema": settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
     recipient_id: USER_PK_TYPE
-    task_id: PK_TYPE = Field(foreign_key='task.id')
+    task_id: PK_TYPE = Field(foreign_key="task.id")
     created_at: Optional[datetime] = Field(
         default=None,
         sa_column=Column(

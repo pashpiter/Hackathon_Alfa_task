@@ -11,6 +11,7 @@ from schemas.notification import (Notification, NotificationHeader,
 from schemas.plan import Plan, PlanStatus
 from schemas.task import Task, TaskStatus
 
+
 MIDNIGHT = datetime.strptime("00:00:00", "%H:%M:%S")
 
 

@@ -11,11 +11,11 @@ from services.user import User, get_user
 
 logger = logger_factory(__name__)
 
-router = APIRouter(prefix='/plans')
+router = APIRouter(prefix="/plans")
 
 
 @router.get(
-    '/{plan_id}',
+    "/{plan_id}",
     response_model=PlanReadWithTasks,
     **openapi.plan.get_plan.model_dump()
 )
@@ -31,7 +31,7 @@ async def get_plan(
 
 
 @router.get(
-    '/',
+    "/",
     response_model=list[PlanRead],
     **openapi.plan.get_plans.model_dump()
 )
@@ -51,7 +51,7 @@ async def get_plans(
 
 
 @router.post(
-    '/',
+    "/",
     response_model=PlanRead,
     **openapi.plan.create_plan.model_dump()
 )
@@ -70,7 +70,7 @@ async def create_plan(
 
 
 @router.patch(
-    '/{plan_id}',
+    "/{plan_id}",
     response_model=PlanRead,
     **openapi.plan.update_plan.model_dump()
 )

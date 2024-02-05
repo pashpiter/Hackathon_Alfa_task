@@ -11,11 +11,11 @@ from services.user import User, get_user
 
 logger = logger_factory(__name__)
 
-router = APIRouter(prefix='/notifications')
+router = APIRouter(prefix="/notifications")
 
 
 @router.get(
-    '/',
+    "/",
     response_model=list[NotificationRead],
     **openapi.notification.get_notifications.model_dump()
 )
@@ -25,19 +25,19 @@ async def get_notifications(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Получение списка уведомлений."""
-    attrs = {'recipient_id': user.id}
+    attrs = {"recipient_id": user.id}
     if unread_only:
-        attrs.update({'is_read': False})
+        attrs.update({"is_read": False})
 
     return await notification_crud.get_all(
         session,
         attrs,
-        sort='created_at desc'
+        sort="created_at desc"
     )
 
 
 @router.patch(
-    '/read',
+    "/read",
     status_code=HTTPStatus.NO_CONTENT,
     **openapi.notification.read_notifications.model_dump()
 )

@@ -14,10 +14,10 @@ from schemas.user import User, UserRead
 
 
 class PlanStatus(str, enum.Enum):
-    CREATED = 'created'
-    IN_PROGRESS = 'in_progress'
-    DONE = 'done'
-    FAILED = 'failed'
+    CREATED = "created"
+    IN_PROGRESS = "in_progress"
+    DONE = "done"
+    FAILED = "failed"
 
 
 class PlanBase(SQLModel):
@@ -34,7 +34,7 @@ class Plan(PlanBase, table=True):
     __table_args__ = {"schema": settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
-    employee_id: USER_PK_TYPE = Field(foreign_key='user.id')
+    employee_id: USER_PK_TYPE = Field(foreign_key="user.id")
     status: PlanStatus = Field(default=PlanStatus.CREATED)
     created_at: Optional[date] = Field(
         sa_column=Column(

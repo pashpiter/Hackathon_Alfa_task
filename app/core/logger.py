@@ -19,7 +19,7 @@ def logger_factory(name: str) -> logging.Logger:
     f_handler = RotatingFileHandler(filename=settings.logging.log_file,
                                     maxBytes=10**6,
                                     backupCount=5,
-                                    encoding='UTF-8')
+                                    encoding="UTF-8")
 
     formatter = logging.Formatter(fmt=settings.logging.log_format,
                                   datefmt=settings.logging.dt_format)

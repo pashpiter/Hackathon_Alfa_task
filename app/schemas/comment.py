@@ -12,17 +12,17 @@ from schemas.user import User, UserRead
 
 # Разделитель, используемый при записи ссылки в БД. В самой БД хранится в виде:
 # <текст ссылки><РАЗДЕЛИТЕЛЬ><url ссылки>
-SEPARATOR = '$'
+SEPARATOR = "$"
 
-WRONG_CONTENT = 'Допустим только текст'
-WRONG_LINK_CONTENT = ('Для создания комментария типа link, необходимо '
-                      'передать объект Link')
+WRONG_CONTENT = "Допустим только текст"
+WRONG_LINK_CONTENT = ("Для создания комментария типа link, необходимо "
+                      "передать объект Link")
 
 
 class CommentType(str, enum.Enum):
-    TEXT = 'text'
-    FILE = 'file'
-    LINK = 'link'
+    TEXT = "text"
+    FILE = "file"
+    LINK = "link"
 
 
 class Link(BaseModel):
@@ -30,10 +30,10 @@ class Link(BaseModel):
     url: HttpUrl
 
     def to_str(self) -> str:
-        return f'{self.text}{SEPARATOR}{self.url}'
+        return f"{self.text}{SEPARATOR}{self.url}"
 
     @staticmethod
-    def from_str(text_: str, url_: str) -> 'Link':
+    def from_str(text_: str, url_: str) -> "Link":
         return Link(text=text_, url=url_)
 
 
@@ -43,11 +43,11 @@ class CommentBase(SQLModel):
 
 
 class Comment(CommentBase, table=True):
-    __table_args__ = {'schema': settings.postgres.db_schema}
+    __table_args__ = {"schema": settings.postgres.db_schema}
 
     id: Optional[PK_TYPE] = Field(default=None, primary_key=True)
-    task_id: PK_TYPE = Field(foreign_key='task.id')
-    author_id: USER_PK_TYPE = Field(foreign_key='user.id')
+    task_id: PK_TYPE = Field(foreign_key="task.id")
+    author_id: USER_PK_TYPE = Field(foreign_key="user.id")
     content: str
     created_at: Optional[datetime] = Field(
         default=None,
@@ -66,7 +66,7 @@ class CommentRead(CommentBase):
     author: UserRead
     created_at: datetime
 
-    @field_validator('content')
+    @field_validator("content")
     @classmethod
     def convert_content(
             cls,
@@ -75,13 +75,13 @@ class CommentRead(CommentBase):
     ) -> str | Link:
         """При необходимости конвертирует текстовое представления ссылки в
         объект Link."""
-        if validation_info.data['type'] == CommentType.LINK:
+        if validation_info.data["type"] == CommentType.LINK:
             content = Link.from_str(*content.split(SEPARATOR))
         return content
 
 
 class CommentCreate(CommentBase):
-    @field_validator('content')
+    @field_validator("content")
     @classmethod
     def convert_content(
             cls,
@@ -90,7 +90,7 @@ class CommentCreate(CommentBase):
     ) -> str | Link:
         """При необходимости конвертирует объект Link в текстовое
         представление."""
-        if validation_info.data['type'] == CommentType.LINK:
+        if validation_info.data["type"] == CommentType.LINK:
             if isinstance(content, str):
                 raise ValueError(WRONG_LINK_CONTENT)
             content = content.to_str()
@@ -101,8 +101,8 @@ class CommentCreate(CommentBase):
 
 
 class UnreadComment(SQLModel, table=True):
-    __table_args__ = {'schema': settings.postgres.db_schema}
+    __table_args__ = {"schema": settings.postgres.db_schema}
 
-    reader_id: USER_PK_TYPE = Field(primary_key=True, foreign_key='user.id')
-    task_id: PK_TYPE = Field(primary_key=True, foreign_key='task.id')
+    reader_id: USER_PK_TYPE = Field(primary_key=True, foreign_key="user.id")
+    task_id: PK_TYPE = Field(primary_key=True, foreign_key="task.id")
     amount: int
