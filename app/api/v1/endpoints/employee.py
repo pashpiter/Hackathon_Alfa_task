@@ -4,7 +4,7 @@ from api.v1 import openapi, validators
 from core.logger import logger_factory
 from db.database import AsyncSession, get_async_session
 from schemas.base import USER_PK_TYPE
-from schemas.user import User, UserRead, UserReadWithSupervisor
+from schemas.user import User, UserRead
 from services.user import get_user
 from db.crud.user import user_crud
 
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/employees")
 
 @router.get(
     "/{employee_id}",
-    response_model=UserReadWithSupervisor,
+    response_model=UserRead,
     **openapi.employee.get_employee.model_dump()
 )
 async def get_employee(
