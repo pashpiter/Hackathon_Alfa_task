@@ -70,7 +70,6 @@ async def check_role(
 
 
 async def check_plan_tasks_expired_date(
-        session: AsyncSession,
         plan: Plan,
         date_in_task: date
 ) -> None:

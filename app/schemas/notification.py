@@ -21,8 +21,6 @@ class NotificationHeader(str, enum.Enum):
     TASK_REVIEW = "Задача на проверке"
     TASK_FAILED = "Задача не выполнена"
     TASK_IN_PROGRESS = "Задача в работе"
-    FILE_ATTACHMENT = "Прикреплен файл"
-    LINK_ATTACHMENT = "Прикреплена ссылка"
     COMMENT_NEW = "Добавлен комментарий"
 
 
