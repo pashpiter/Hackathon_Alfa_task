@@ -92,7 +92,7 @@ async def check_employee_related_supervisor(
         supervisor_id: USER_PK_TYPE,
         employee_id: USER_PK_TYPE,
         session: AsyncSession
-) -> None:
+) -> User:
     employee = await user_crud.get(session, {"id": employee_id})
 
     if employee is None:
@@ -103,6 +103,8 @@ async def check_employee_related_supervisor(
 
     if employee.supervisor_id != supervisor_id:
         raise ForbiddenException(NOT_RELATED_EMPLOYEE)
+
+    return employee
 
 
 async def check_no_active_plan(
