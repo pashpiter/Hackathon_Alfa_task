@@ -21,7 +21,7 @@ class NotificationHeader(str, enum.Enum):
     TASK_REVIEW = "Задача на проверке"
     TASK_FAILED = "Задача не выполнена"
     TASK_IN_PROGRESS = "Задача в работе"
-    COMMENT_NEW = "Новый комментарий"
+    COMMENT_NEW = "Добавлен комментарий"
 
 
 class NotificationBase(SQLModel):

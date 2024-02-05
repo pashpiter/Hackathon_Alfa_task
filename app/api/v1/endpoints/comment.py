@@ -18,7 +18,7 @@ logger = logger_factory(__name__)
 
 router = APIRouter()
 
-NEW_COMMENT = '{author} оставил новый комментарий по задаче {task}'
+NEW_COMMENT = '{author} {task}'
 
 
 @router.get(
