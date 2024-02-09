@@ -4,7 +4,6 @@ from datetime import date
 from typing import List, Optional, TYPE_CHECKING
 
 from core.config import settings
-from core.utils import date_today
 from pydantic import model_validator
 from sqlmodel import Column, Date, Field, Relationship, SQLModel, text
 
@@ -64,7 +63,7 @@ class Task(TaskBase, table=True):
 
 
 class TaskCreate(TaskBase):
-    created_at: Optional[date] = date_today()
+    created_at: Optional[date] = date.today()
     expires_at: Optional[EXPIRES_DATE_TYPE] = None
 
 

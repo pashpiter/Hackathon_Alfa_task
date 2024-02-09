@@ -1,5 +1,8 @@
-from datetime import date
 from pathlib import Path
+from typing import Iterable, Type
+
+from schemas.plan import Plan, PlanStatus
+from schemas.task import Task, TaskStatus
 
 
 class File:
@@ -48,5 +51,19 @@ def create_empty_file(
     return str(file)
 
 
-def date_today() -> date:
-    return date.today()
+def get_status_statistic(
+        elements: Iterable[Plan | Task],
+        statuses: Type[PlanStatus | TaskStatus]
+):
+    el_amount = 0
+    el_statuses = {status: 0 for status in statuses}
+    for element in elements:
+        el_amount += 1
+        el_statuses[element.status] += 1
+
+    el_done_rate = el_statuses[statuses.DONE] / el_amount * 100
+    return {
+        "total": el_amount,
+        "complete_percentage": f'{el_done_rate:.0f}',
+        "statuses": el_statuses,
+    }
