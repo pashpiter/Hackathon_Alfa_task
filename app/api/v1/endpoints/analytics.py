@@ -19,7 +19,6 @@ router = APIRouter()
 
 @router.get("/analytics",
             response_class=JSONResponse,
-            status_code=HTTPStatus.OK,
             **openapi.analytics.get_analytic.model_dump())
 async def get_analytic(
     user: User = Depends(get_user),
