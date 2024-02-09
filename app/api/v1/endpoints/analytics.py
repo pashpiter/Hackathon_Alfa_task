@@ -36,6 +36,7 @@ async def get_analytic(
             1 for task in tasks if task.status == status)
     result_tasks = {
         "total": len(tasks),
+        "completed": statuses_tasks.get(TaskStatus.DONE),
         "expired": statuses_tasks.get(TaskStatus.FAILED),
         "statuses": {
             "Создано": statuses_tasks.get(TaskStatus.CREATED),
