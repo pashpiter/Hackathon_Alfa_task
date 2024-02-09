@@ -7,7 +7,6 @@ from typing import List, Optional
 from sqlmodel import Column, Date, Field, Relationship, SQLModel, text
 
 from core.config import settings
-from core.utils import date_today
 from schemas.base import EXPIRES_DATE_TYPE, PK_TYPE, USER_PK_TYPE
 from schemas.task import Task, TaskRead
 from schemas.user import User, UserRead
@@ -57,7 +56,7 @@ class Plan(PlanBase, table=True):
 class PlanCreate(PlanBase):
     employee_id: int
     expires_at: Optional[EXPIRES_DATE_TYPE] = \
-        date_today() + relativedelta(months=6)
+        date.today() + relativedelta(months=6)
 
 
 class PlanRead(PlanBase):
